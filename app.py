@@ -262,28 +262,6 @@ MENU_HTML = """
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
             position: relative; 
             overflow: hidden;
-            z-index: 1;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-
-        .card::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.6s ease;
-            z-index: -1;
         }
 
         .card:hover {
@@ -292,9 +270,6 @@ MENU_HTML = """
             box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0, 206, 201, 0.15);
             background: rgba(35, 35, 45, 0.8);
         }
-
-        .card:hover::before { opacity: 1; }
-        .card:hover::after { opacity: 1; transform: scale(1); }
 
         .emoji-icon { 
             font-size: 65px; 
@@ -311,7 +286,6 @@ MENU_HTML = """
             margin: 5px 0 15px 0; 
             font-size: 1.6rem; 
             font-weight: 700; 
-            letter-spacing: 0.5px;
         }
         
         .tag {
@@ -322,7 +296,6 @@ MENU_HTML = """
             border-radius: 30px; 
             font-weight: 500;
             border: 1px solid rgba(129, 236, 236, 0.2);
-            backdrop-filter: blur(5px);
         }
 
         footer { 
@@ -331,17 +304,6 @@ MENU_HTML = """
             font-size: 0.9rem; 
             font-weight: 500;
             padding-bottom: 30px;
-        }
-
-        footer span {
-            color: var(--primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            body { padding: 40px 15px; }
-            .header-container { margin-bottom: 40px; }
         }
     </style>
 </head>
@@ -352,16 +314,25 @@ MENU_HTML = """
     </div>
 
     <!-- LOGIN BAR - למעלה משמאל -->
-    <div style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 12px; z-index: 100;">
+    <div style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 12px; z-index: 100; flex-wrap: wrap;">
         <div id="user-status" style="background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 30px; font-size: 0.95rem; display: none;">
             <span id="nickname-display"></span>
         </div>
-        <button onclick="showLoginModal()" 
+        
+        <button id="main-action-btn"
+                onclick="showLoginModal()"
                 style="background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 700; cursor: pointer;">
             התחבר / הרשם
         </button>
+        
         <button onclick="logout()" id="logout-btn" style="display: none; background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 700; cursor: pointer;">
             התנתק
+        </button>
+        
+        <!-- כפתור אדמין -->
+        <button onclick="showAdminPanel()" id="admin-btn" 
+                style="display: none; background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 700; cursor: pointer;">
+            ⚙️ פאנל אדמין
         </button>
     </div>
 
@@ -380,158 +351,281 @@ MENU_HTML = """
     </div>
 
     <footer>&copy; Aviel Aluf | <span>x0583289789@gmail.com</span></footer>
-<!-- ====================== SUPABASE + LOGIN + SAVES + LEADERBOARD ====================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// ====================== SUPABASE CONFIG ======================
-const SUPABASE_URL = 'https://ryoykooazoaordzmxdat.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B';
 
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- ====================== SUPABASE SCRIPT ====================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ryoykooazoaordzmxdat.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B';
 
-let currentUser = null;
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ====================== פונקציות בסיסיות ======================
-async function checkUser() {
-    try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        currentUser = user;
-        updateUI();
-        console.log('✅ Supabase User:', currentUser ? 'מחובר' : 'לא מחובר');
-        return user;
-    } catch (e) {
-        console.error('שגיאה בבדיקת משתמש:', e);
-    }
-}
+        let currentUser = null;
 
-function updateUI() {
-    const status = document.getElementById('user-status');
-    const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
-    const logoutBtn = document.getElementById('logout-btn');
-
-    if (currentUser) {
-        status.style.display = 'flex';
-        document.getElementById('nickname-display').innerHTML = 
-            `👤 <strong>${currentUser.user_metadata?.nickname || currentUser.email?.split('@')[0] || 'משתמש'}</strong>`;
-        
-        // שינוי הכפתור למצב מחובר
-        if (loginBtn) {
-            loginBtn.textContent = 'ערוך את פרטיך';
-            loginBtn.style.background = '#6c7ce7';
-            loginBtn.onclick = showEditProfileModal;   // שינוי הפונקציה
+        // ====================== פונקציות בסיסיות ======================
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                currentUser = user;
+                updateUI();
+                console.log('✅ Supabase User:', currentUser ? 'מחובר' : 'לא מחובר');
+            } catch (e) {
+                console.error('שגיאה בבדיקת משתמש:', e);
+            }
         }
-        logoutBtn.style.display = 'block';
-    } else {
-        status.style.display = 'none';
-        if (loginBtn) {
-            loginBtn.textContent = 'התחבר / הרשם';
-            loginBtn.style.background = 'var(--accent)';
-            loginBtn.onclick = showLoginModal;
+
+        function updateUI() {
+            const status = document.getElementById('user-status');
+            const mainBtn = document.getElementById('main-action-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const adminBtn = document.getElementById('admin-btn');
+
+            if (currentUser) {
+                const isAdmin = currentUser.email === 'x0583289789@gmail.com';
+
+                status.style.display = 'flex';
+                document.getElementById('nickname-display').innerHTML = 
+                    `👤 <strong>${currentUser.user_metadata?.nickname || currentUser.email?.split('@')[0] || 'משתמש'}</strong>`;
+                
+                mainBtn.textContent = 'ערוך את פרטיך';
+                mainBtn.style.background = '#6c7ce7';
+                mainBtn.onclick = showEditProfileModal;
+
+                logoutBtn.style.display = 'block';
+                
+                if (isAdmin) {
+                    adminBtn.style.display = 'block';
+                } else {
+                    adminBtn.style.display = 'none';
+                }
+            } else {
+                status.style.display = 'none';
+                mainBtn.textContent = 'התחבר / הרשם';
+                mainBtn.style.background = 'var(--accent)';
+                mainBtn.onclick = showLoginModal;
+                logoutBtn.style.display = 'none';
+                adminBtn.style.display = 'none';
+            }
         }
-        logoutBtn.style.display = 'none';
-    }
-}
 
-async function logout() {
-    try {
-        await supabaseClient.auth.signOut();
-        currentUser = null;
-        updateUI();
-        alert('התנתקת בהצלחה ✅');
-    } catch (e) {
-        console.error(e);
-        alert('שגיאה בהתנתקות');
-    }
-}
+        async function logout() {
+            try {
+                await supabaseClient.auth.signOut();
+                currentUser = null;
+                updateUI();
+                alert('התנתקת בהצלחה ✅');
+            } catch (e) {
+                console.error(e);
+                alert('שגיאה בהתנתקות');
+            }
+        }
 
-// ====================== מודל התחברות / הרשמה ======================
-function showLoginModal() {
-    const modalHTML = `
-    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;">
-        <div style="background:#111; padding:40px; border-radius:24px; width:90%; max-width:420px; text-align:center; color:white; box-shadow:0 0 40px rgba(0,206,201,0.3);">
-            <h2 style="margin-bottom:25px;">התחברות / הרשמה</h2>
-            <input id="email" type="email" placeholder="אימייל" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
-            <input id="password" type="password" placeholder="סיסמה (מינימום 6 תווים)" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
-            <button onclick="login()" style="width:100%; padding:16px; background:#00cec9; color:#000; border:none; border-radius:12px; margin:12px 0; font-weight:700; font-size:1.05rem;">התחבר</button>
-            <button onclick="signup()" style="width:100%; padding:16px; background:#6c7ce7; color:white; border:none; border-radius:12px; font-weight:700; font-size:1.05rem;">הרשם חשבון חדש</button>
-            <button onclick="this.parentElement.parentElement.remove()" style="margin-top:20px; color:#888; background:none; border:none; font-size:0.95rem;">סגור</button>
-        </div>
-    </div>`;
-    const div = document.createElement('div');
-    div.innerHTML = modalHTML;
-    document.body.appendChild(div);
-}
+        // ====================== מודל התחברות ======================
+        function showLoginModal() {
+            const modalHTML = `
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;">
+                <div style="background:#111; padding:40px; border-radius:24px; width:90%; max-width:420px; text-align:center; color:white; box-shadow:0 0 40px rgba(0,206,201,0.3);">
+                    <h2 style="margin-bottom:25px;">התחברות / הרשמה</h2>
+                    <input id="email" type="email" placeholder="אימייל" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
+                    <input id="password" type="password" placeholder="סיסמה (מינימום 6 תווים)" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
+                    <button onclick="login()" style="width:100%; padding:16px; background:#00cec9; color:#000; border:none; border-radius:12px; margin:12px 0; font-weight:700; font-size:1.05rem;">התחבר</button>
+                    <button onclick="signup()" style="width:100%; padding:16px; background:#6c7ce7; color:white; border:none; border-radius:12px; font-weight:700; font-size:1.05rem;">הרשם חשבון חדש</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="margin-top:20px; color:#888; background:none; border:none; font-size:0.95rem;">סגור</button>
+                </div>
+            </div>`;
+            const div = document.createElement('div');
+            div.innerHTML = modalHTML;
+            document.body.appendChild(div);
+        }
 
-// ====================== מודל עריכת פרטים (חדש) ======================
-function showEditProfileModal() {
-    const currentNickname = currentUser?.user_metadata?.nickname || currentUser?.email?.split('@')[0] || '';
-    
-    const modalHTML = `
-    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;">
-        <div style="background:#111; padding:40px; border-radius:24px; width:90%; max-width:420px; text-align:center; color:white; box-shadow:0 0 40px rgba(0,206,201,0.3);">
-            <h2 style="margin-bottom:25px;">ערוך את הפרטים שלך</h2>
-            <p style="margin-bottom:15px; color:#aaa;">שם תצוגה (יופיע בלידרבורד)</p>
-            <input id="new-nickname" type="text" value="${currentNickname}" placeholder="שם תצוגה" 
-                   style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
+        // ====================== מודל עריכת פרטים ======================
+        function showEditProfileModal() {
+            const currentNickname = currentUser?.user_metadata?.nickname || currentUser?.email?.split('@')[0] || '';
+            const modalHTML = `
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;">
+                <div style="background:#111; padding:40px; border-radius:24px; width:90%; max-width:420px; text-align:center; color:white; box-shadow:0 0 40px rgba(0,206,201,0.3);">
+                    <h2 style="margin-bottom:25px;">ערוך את הפרטים שלך</h2>
+                    <p style="margin-bottom:15px; color:#aaa;">שם תצוגה (יופיע בלידרבורד)</p>
+                    <input id="new-nickname" type="text" value="${currentNickname}" placeholder="שם תצוגה" 
+                           style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
+                    <button onclick="updateNickname()" style="width:100%; padding:16px; background:#00cec9; color:#000; border:none; border-radius:12px; margin:15px 0; font-weight:700;">שמור שינויים</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="margin-top:10px; color:#888; background:none; border:none; font-size:0.95rem;">סגור</button>
+                </div>
+            </div>`;
+            const div = document.createElement('div');
+            div.innerHTML = modalHTML;
+            document.body.appendChild(div);
+        }
+
+        async function updateNickname() {
+            const newNickname = document.getElementById('new-nickname').value.trim();
+            if (!newNickname) return alert('נא להזין שם תצוגה');
             
-            <button onclick="updateNickname()" style="width:100%; padding:16px; background:#00cec9; color:#000; border:none; border-radius:12px; margin:15px 0; font-weight:700;">שמור שינויים</button>
-            <button onclick="this.parentElement.parentElement.remove()" style="margin-top:10px; color:#888; background:none; border:none; font-size:0.95rem;">סגור</button>
-        </div>
-    </div>`;
-    const div = document.createElement('div');
-    div.innerHTML = modalHTML;
-    document.body.appendChild(div);
-}
+            try {
+                await supabaseClient.auth.updateUser({ data: { nickname: newNickname } });
+                await supabaseClient.from('profiles').upsert({
+                    user_id: currentUser.id,
+                    nickname: newNickname
+                });
+                alert('✅ שם התצוגה עודכן!');
+                document.querySelector('div[style*="position:fixed"]').remove();
+                await checkUser();
+            } catch (e) {
+                alert('שגיאה: ' + e.message);
+            }
+        }
 
-async function updateNickname() {
-    const newNickname = document.getElementById('new-nickname').value.trim();
-    if (!newNickname) {
-        alert('נא להזין שם תצוגה');
-        return;
-    }
+        // ====================== פונקציות Login / Signup ======================
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            if (!email || !password) return alert('נא למלא אימייל וסיסמה');
+            
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) alert('שגיאה: ' + error.message);
+                else {
+                    await checkUser();
+                    document.querySelector('div[style*="position:fixed"]').remove();
+                }
+            } catch (e) {
+                alert('שגיאה טכנית');
+            }
+        }
 
-    try {
-        const { error } = await supabaseClient.auth.updateUser({
-            data: { nickname: newNickname }
-        });
+        async function signup() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            if (!email || !password || password.length < 6) return alert('סיסמה חייבת להיות לפחות 6 תווים');
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) alert('שגיאה: ' + error.message);
+                else {
+                    const nickname = prompt('בחר שם תצוגה:', email.split('@')[0]);
+                    if (nickname && data.user) {
+                        await supabaseClient.from('profiles').insert({ user_id: data.user.id, nickname });
+                    }
+                    alert('✅ הרשמה הושלמה! בדוק את האימייל');
+                    document.querySelector('div[style*="position:fixed"]').remove();
+                }
+            } catch (e) {
+                alert('שגיאה בהרשמה');
+            }
+        }
 
-        if (error) {
-            alert('שגיאה: ' + error.message);
-        } else {
-            // עדכון גם בטבלת profiles
-            await supabaseClient.from('profiles').upsert({
+        // ====================== פאנל אדמין ======================
+        async function showAdminPanel() {
+            if (currentUser?.email !== 'x0583289789@gmail.com') {
+                return alert('אין לך הרשאות אדמין!');
+            }
+
+            let html = `<h2 style="color:#e74c3c; margin-bottom:20px;">⚙️ פאנל אדמין</h2>`;
+
+            const games = ['survival','rpg_legend','genesis','red_code','iron_legion','shadow_maze','proxima','parasite','clover','neon_rider','manager_pro'];
+
+            for (let game of games) {
+                const { data } = await supabaseClient
+                    .from('high_scores')
+                    .select(`*, profiles(nickname)`)
+                    .eq('game_slug', game)
+                    .order('metric_value', { ascending: false })
+                    .limit(50);
+
+                html += `<h3 style="margin:20px 0 10px;">${game.toUpperCase()} - ${data ? data.length : 0} רשומות</h3>`;
+                html += `<table style="width:100%; border-collapse:collapse; margin-bottom:40px; font-size:0.95rem;">`;
+                html += `<tr style="background:#333;"><th>#</th><th>שם</th><th>ציון</th><th>תאריך</th><th>פעולה</th></tr>`;
+
+                (data || []).forEach((row, i) => {
+                    html += `<tr style="border-bottom:1px solid #444;">
+                        <td>${i+1}</td>
+                        <td>${row.profiles?.nickname || '---'}</td>
+                        <td><strong>${row.metric_value}</strong></td>
+                        <td>${new Date(row.submitted_at).toLocaleDateString('he-IL')}</td>
+                        <td><button onclick="deleteScore('${row.id}')" style="background:#e74c3c;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;">מחק</button></td>
+                    </tr>`;
+                });
+                html += `</table>`;
+            }
+
+            const modal = document.createElement('div');
+            modal.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;z-index:999999;color:white;overflow:auto;";
+            modal.innerHTML = `<div style="background:#1a1a2e;padding:30px;border-radius:20px;max-width:1200px;width:95%;max-height:95vh;overflow:auto;">${html}<br><button onclick="this.parentElement.parentElement.remove()" style="margin-top:30px;padding:14px 40px;background:#ff4757;color:white;border:none;border-radius:30px;">סגור פאנל</button></div>`;
+            document.body.appendChild(modal);
+        }
+
+        async function deleteScore(scoreId) {
+            if (!confirm('למחוק את הציון הזה לצמיתות?')) return;
+            const { error } = await supabaseClient.from('high_scores').delete().eq('id', scoreId);
+            if (error) alert(error.message);
+            else {
+                alert('✅ נמחק בהצלחה');
+                showAdminPanel();
+            }
+        }
+
+        // ====================== שאר הפונקציות (שמירות + לידרבורד) ======================
+        async function saveGame(gameSlug, saveData) {
+            if (!currentUser) {
+                sessionStorage.setItem(`anon_save_${gameSlug}`, JSON.stringify(saveData));
+                return;
+            }
+            await supabaseClient.from('game_saves').upsert({
                 user_id: currentUser.id,
-                nickname: newNickname
+                game_slug: gameSlug,
+                save_data: saveData
             });
-            
-            alert('✅ שם התצוגה עודכן בהצלחה!');
-            document.querySelector('div[style*="position:fixed"]').remove();
-            await checkUser();   // רענון ה-UI
         }
-    } catch (e) {
-        console.error(e);
-        alert('שגיאה בעדכון');
-    }
-}
 
-// ====================== שאר הפונקציות (login, signup, saveGame וכו') ======================
-// (השאר אותן כמו שהיו – login, signup, saveGame, loadGame, submitScore, getLeaderboard, showLeaderboard)
+        async function loadGame(gameSlug) {
+            if (!currentUser) {
+                const data = sessionStorage.getItem(`anon_save_${gameSlug}`);
+                return data ? JSON.parse(data) : null;
+            }
+            const { data } = await supabaseClient
+                .from('game_saves')
+                .select('save_data')
+                .eq('user_id', currentUser.id)
+                .eq('game_slug', gameSlug)
+                .single();
+            return data ? data.save_data : null;
+        }
 
-async function login() { /* ... אותו קוד כמו קודם ... */ }
-async function signup() { /* ... אותו קוד כמו קודם ... */ }
-async function saveGame(gameSlug, saveData) { /* ... */ }
-async function loadGame(gameSlug) { /* ... */ }
-async function submitScore(gameSlug, metricValue, details) { /* ... */ }
-async function getLeaderboard(gameSlug, limit = 10) { /* ... */ }
-async function showLeaderboard(gameSlug) { /* ... */ }
+        async function submitScore(gameSlug, metricValue, details) {
+            if (!currentUser) return alert('רק משתמשים מחוברים יכולים להיכנס ללידרבורד!');
+            await supabaseClient.from('high_scores').insert({
+                user_id: currentUser.id,
+                game_slug: gameSlug,
+                metric_value: metricValue,
+                details: details
+            });
+            alert('✅ הציון נשלח ללידרבורד!');
+        }
 
-// טען משתמש בהתחלה
-window.addEventListener('load', () => {
-    console.log('✅ Hub loaded - Supabase script running');
-    checkUser();
-});
-</script>
+        async function getLeaderboard(gameSlug, limit = 10) {
+            const { data } = await supabaseClient
+                .from('high_scores')
+                .select(`*, profiles(nickname)`)
+                .eq('game_slug', gameSlug)
+                .order('metric_value', { ascending: false })
+                .limit(limit);
+            return data || [];
+        }
+
+        async function showLeaderboard(gameSlug) {
+            const leaderboard = await getLeaderboard(gameSlug, 10);
+            // כאן תוכל להוסיף בהמשך מודל לידרבורד רגיל למשתמשים רגילים
+            console.log('Leaderboard for', gameSlug, leaderboard);
+            alert('לידרבורד זמין בפאנל אדמין (לעת עתה)');
+        }
+
+        // טעינה ראשונית
+        window.addEventListener('load', () => {
+            console.log('✅ Arcade Station Hub Loaded');
+            checkUser();
+        });
+    </script>
 </body>
 </html>
 """
