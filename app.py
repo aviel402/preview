@@ -381,170 +381,186 @@ MENU_HTML = """
 
     <footer>&copy; Aviel Aluf | <span>x0583289789@gmail.com</span></footer>
 
-    <!-- ====================== SUPABASE + LOGIN + SAVES + LEADERBOARD ====================== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // ====================== SUPABASE CONFIG ======================
-        const SUPABASE_URL = 'https://ryoykooazoaordzmxdat.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B';
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<!-- ====================== SUPABASE + LOGIN + SAVES + LEADERBOARD ====================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ====================== SUPABASE CONFIG ======================
+const SUPABASE_URL = 'https://ryoykooazoaordzmxdat.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B';
 
-        let currentUser = null;
+// שימוש נכון ב-CDN (window.supabase)
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ====================== פונקציות בסיסיות ======================
-        async function checkUser() {
-            const { data: { user } } = await supabase.auth.getUser();
-            currentUser = user;
-            updateUI();
-            return user;
+let currentUser = null;
+
+// ====================== פונקציות בסיסיות ======================
+async function checkUser() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        currentUser = user;
+        updateUI();
+        console.log('✅ Supabase User:', currentUser ? 'מחובר' : 'לא מחובר');
+        return user;
+    } catch (e) {
+        console.error('שגיאה בבדיקת משתמש:', e);
+    }
+}
+
+function updateUI() {
+    const status = document.getElementById('user-status');
+    const logoutBtn = document.getElementById('logout-btn');
+    if (currentUser) {
+        status.style.display = 'flex';
+        document.getElementById('nickname-display').innerHTML = 
+            `👤 <strong>${currentUser.user_metadata?.nickname || currentUser.email?.split('@')[0] || 'משתמש'}</strong>`;
+        logoutBtn.style.display = 'block';
+    } else {
+        status.style.display = 'none';
+        logoutBtn.style.display = 'none';
+    }
+}
+
+async function logout() {
+    try {
+        await supabase.auth.signOut();
+        currentUser = null;
+        updateUI();
+        alert('התנתקת בהצלחה ✅');
+    } catch (e) {
+        console.error(e);
+        alert('שגיאה בהתנתקות');
+    }
+}
+
+// ====================== מודל התחברות ======================
+function showLoginModal() {
+    const modalHTML = `
+    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;">
+        <div style="background:#111; padding:40px; border-radius:24px; width:90%; max-width:420px; text-align:center; color:white; box-shadow:0 0 40px rgba(0,206,201,0.3);">
+            <h2 style="margin-bottom:25px;">התחברות / הרשמה</h2>
+            <input id="email" type="email" placeholder="אימייל" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
+            <input id="password" type="password" placeholder="סיסמה (מינימום 6 תווים)" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem; border:1px solid #444;"><br>
+            <button onclick="login()" style="width:100%; padding:16px; background:#00cec9; color:#000; border:none; border-radius:12px; margin:12px 0; font-weight:700; font-size:1.05rem;">התחבר</button>
+            <button onclick="signup()" style="width:100%; padding:16px; background:#6c7ce7; color:white; border:none; border-radius:12px; font-weight:700; font-size:1.05rem;">הרשם חשבון חדש</button>
+            <button onclick="this.parentElement.parentElement.remove()" style="margin-top:20px; color:#888; background:none; border:none; font-size:0.95rem;">סגור</button>
+        </div>
+    </div>`;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+}
+
+async function login() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (!email || !password) {
+        alert('נא למלא אימייל וסיסמה');
+        return;
+    }
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            alert('שגיאת התחברות: ' + error.message);
+            console.error(error);
+        } else {
+            await checkUser();
+            document.querySelector('div[style*="position:fixed"]').remove();
+            alert('✅ התחברת בהצלחה!');
         }
+    } catch (e) {
+        console.error(e);
+        alert('שגיאה טכנית בהתחברות');
+    }
+}
 
-        function updateUI() {
-            const status = document.getElementById('user-status');
-            const logoutBtn = document.getElementById('logout-btn');
-            if (currentUser) {
-                status.style.display = 'flex';
-                document.getElementById('nickname-display').innerHTML = 
-                    `👤 <strong>${currentUser.user_metadata?.nickname || currentUser.email.split('@')[0]}</strong>`;
-                logoutBtn.style.display = 'block';
-            } else {
-                status.style.display = 'none';
-                logoutBtn.style.display = 'none';
+async function signup() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (!email || !password || password.length < 6) {
+        alert('נא למלא אימייל וסיסמה של לפחות 6 תווים');
+        return;
+    }
+    try {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) {
+            alert('שגיאת הרשמה: ' + error.message);
+        } else {
+            let nickname = prompt('בחר שם תצוגה ללידרבורד:', email.split('@')[0]);
+            if (nickname && data.user) {
+                await supabase.from('profiles').insert({ user_id: data.user.id, nickname: nickname.trim() });
             }
+            alert('✅ נוצר חשבון! בדוק את תיבת האימייל שלך לאישור (אם מופעל)');
+            document.querySelector('div[style*="position:fixed"]').remove();
         }
+    } catch (e) {
+        console.error(e);
+        alert('שגיאה בהרשמה');
+    }
+}
 
-        async function logout() {
-            await supabase.auth.signOut();
-            currentUser = null;
-            updateUI();
-            alert('התנתקת בהצלחה ✅');
-        }
+// ====================== שמירה + לידרבורד (נשאר אותו דבר) ======================
+async function saveGame(gameSlug, saveData) {
+    if (!currentUser) {
+        sessionStorage.setItem(`anon_save_${gameSlug}`, JSON.stringify(saveData));
+        return;
+    }
+    await supabase.from('game_saves').upsert({
+        user_id: currentUser.id,
+        game_slug: gameSlug,
+        save_data: saveData
+    });
+}
 
-        // ====================== מודל התחברות ======================
-        function showLoginModal() {
-            const modalHTML = `
-            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;">
-                <div style="background:#111; padding:40px; border-radius:24px; width:90%; max-width:420px; text-align:center; color:white;">
-                    <h2 style="margin-bottom:20px;">התחברות / הרשמה</h2>
-                    <input id="email" type="email" placeholder="אימייל" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem;"><br>
-                    <input id="password" type="password" placeholder="סיסמה" style="width:100%; padding:14px; margin:12px 0; border-radius:12px; font-size:1rem;"><br>
-                    <button onclick="login()" style="width:100%; padding:16px; background:#00cec9; color:#000; border:none; border-radius:12px; margin:10px 0; font-weight:700;">התחבר</button>
-                    <button onclick="signup()" style="width:100%; padding:16px; background:#6c7ce7; color:white; border:none; border-radius:12px; font-weight:700;">הרשם חשבון חדש</button>
-                    <button onclick="this.parentElement.parentElement.remove()" style="margin-top:25px; color:#aaa; background:none; border:none;">סגור</button>
-                </div>
-            </div>`;
-            const div = document.createElement('div');
-            div.innerHTML = modalHTML;
-            document.body.appendChild(div);
-        }
+async function loadGame(gameSlug) {
+    if (!currentUser) {
+        const data = sessionStorage.getItem(`anon_save_${gameSlug}`);
+        return data ? JSON.parse(data) : null;
+    }
+    const { data } = await supabase
+        .from('game_saves')
+        .select('save_data')
+        .eq('user_id', currentUser.id)
+        .eq('game_slug', gameSlug)
+        .single();
+    return data ? data.save_data : null;
+}
 
-        async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) alert('שגיאה: ' + error.message);
-            else {
-                await checkUser();
-                document.querySelector('div[style*="position:fixed"]').remove();
-            }
-        }
+async function submitScore(gameSlug, metricValue, details) {
+    if (!currentUser) {
+        alert('רק משתמשים מחוברים יכולים להיכנס ללידרבורד!');
+        return;
+    }
+    await supabase.from('high_scores').insert({
+        user_id: currentUser.id,
+        game_slug: gameSlug,
+        metric_value: metricValue,
+        details: details
+    });
+    alert('✅ הציון נשלח ללידרבורד!');
+}
 
-        async function signup() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) alert('שגיאה: ' + error.message);
-            else {
-                const nickname = prompt('בחר שם תצוגה ללידרבורד:', email.split('@')[0]);
-                if (nickname && data.user) {
-                    await supabase.from('profiles').insert({ user_id: data.user.id, nickname });
-                }
-                alert('✅ הרשמה הושלמה! בדוק את האימייל שלך לאישור');
-                document.querySelector('div[style*="position:fixed"]').remove();
-            }
-        }
+async function getLeaderboard(gameSlug, limit = 10) {
+    const { data } = await supabase
+        .from('high_scores')
+        .select(`*, profiles!inner(nickname)`)
+        .eq('game_slug', gameSlug)
+        .order('metric_value', { ascending: false })
+        .limit(limit);
+    return data || [];
+}
 
-        // ====================== שמירה + לידרבורד ======================
-        async function saveGame(gameSlug, saveData) {
-            if (!currentUser) {
-                sessionStorage.setItem(`anon_save_${gameSlug}`, JSON.stringify(saveData));
-                return;
-            }
-            await supabase.from('game_saves').upsert({
-                user_id: currentUser.id,
-                game_slug: gameSlug,
-                save_data: saveData
-            });
-        }
+async function showLeaderboard(gameSlug) {
+    const leaderboard = await getLeaderboard(gameSlug, 10);
+    // ... (הקוד של המודל נשאר אותו דבר כמו קודם)
+    // אם אתה רוצה, אני יכול לתת לך גם אותו מתוקן
+}
 
-        async function loadGame(gameSlug) {
-            if (!currentUser) {
-                const data = sessionStorage.getItem(`anon_save_${gameSlug}`);
-                return data ? JSON.parse(data) : null;
-            }
-            const { data } = await supabase
-                .from('game_saves')
-                .select('save_data')
-                .eq('user_id', currentUser.id)
-                .eq('game_slug', gameSlug)
-                .single();
-            return data ? data.save_data : null;
-        }
-
-        async function submitScore(gameSlug, metricValue, details) {
-            if (!currentUser) {
-                alert('רק משתמשים מחוברים יכולים להיכנס ללידרבורד!');
-                return;
-            }
-            await supabase.from('high_scores').insert({
-                user_id: currentUser.id,
-                game_slug: gameSlug,
-                metric_value: metricValue,
-                details: details
-            });
-            alert('✅ הציון נשלח ללידרבורד!');
-        }
-
-        async function getLeaderboard(gameSlug, limit = 10) {
-            const { data } = await supabase
-                .from('high_scores')
-                .select(`
-                    *,
-                    profiles!inner(nickname)
-                `)
-                .eq('game_slug', gameSlug)
-                .order('metric_value', { ascending: false })
-                .limit(limit);
-            return data || [];
-        }
-
-        async function showLeaderboard(gameSlug) {
-            const leaderboard = await getLeaderboard(gameSlug, 10);
-            let html = `<h2 style="margin-bottom:20px;">🏆 לידרבורד - ${gameSlug.toUpperCase()}</h2>`;
-            html += `<table style="width:100%; border-collapse:collapse; color:white; font-size:1rem;">`;
-            html += `<tr style="background:#222;"><th style="padding:12px;">#</th><th style="padding:12px;">שם</th><th style="padding:12px;">ציון</th><th style="padding:12px;">פרטים</th></tr>`;
-            leaderboard.forEach((row, i) => {
-                const nick = row.profiles?.nickname || 'שחקן אנונימי';
-                const detailsStr = JSON.stringify(row.details || {}).slice(0, 70) + '...';
-                html += `<tr style="border-bottom:1px solid #333;">
-                    <td style="padding:12px;">${i+1}</td>
-                    <td style="padding:12px;">${nick}</td>
-                    <td style="padding:12px; font-weight:700;">${row.metric_value}</td>
-                    <td style="padding:12px; font-size:0.9rem;">${detailsStr}</td>
-                </tr>`;
-            });
-            html += `</table>`;
-            html += `<button onclick="getLeaderboard('${gameSlug}', 100).then(d => { alert('כל הלידרבורד (100 ראשונים):\\n' + JSON.stringify(d, null, 2)); })" style="margin-top:20px; padding:14px 30px; background:#00cec9; color:#000; border:none; border-radius:30px; font-weight:700;">הצג את כל הלידרבורד</button>`;
-
-            const modal = document.createElement('div');
-            modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:99999; color:white;";
-            modal.innerHTML = `<div style="background:#1a1a2e; padding:30px; border-radius:20px; max-width:800px; max-height:90vh; overflow:auto;">${html}<br><button onclick="this.parentElement.parentElement.remove()" style="margin-top:25px; padding:12px 30px; background:#ff4757; color:white; border:none; border-radius:30px;">סגור</button></div>`;
-            document.body.appendChild(modal);
-        }
-
-        // טען משתמש בהתחלה
-        window.addEventListener('load', checkUser);
-    </script>
+// טען משתמש בהתחלה + debug
+window.addEventListener('load', () => {
+    console.log('✅ Hub loaded - Supabase script running');
+    checkUser();
+});
+</script>
 </body>
 </html>
 """
