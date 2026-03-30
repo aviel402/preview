@@ -388,15 +388,15 @@ MENU_HTML = """
 const SUPABASE_URL = 'https://ryoykooazoaordzmxdat.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B';
 
-// שימוש נכון ב-CDN (window.supabase)
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const { createClient } = supabase;   // ← זה התיקון העיקרי
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 
 // ====================== פונקציות בסיסיות ======================
 async function checkUser() {
     try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         currentUser = user;
         updateUI();
         console.log('✅ Supabase User:', currentUser ? 'מחובר' : 'לא מחובר');
@@ -411,7 +411,7 @@ function updateUI() {
     const logoutBtn = document.getElementById('logout-btn');
     if (currentUser) {
         status.style.display = 'flex';
-        document.getElementById('nickname-display').innerHTML = 
+        document.getElementById('nickname-display').innerHTML =
             `👤 <strong>${currentUser.user_metadata?.nickname || currentUser.email?.split('@')[0] || 'משתמש'}</strong>`;
         logoutBtn.style.display = 'block';
     } else {
@@ -422,7 +422,7 @@ function updateUI() {
 
 async function logout() {
     try {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         currentUser = null;
         updateUI();
         alert('התנתקת בהצלחה ✅');
@@ -458,7 +458,7 @@ async function login() {
         return;
     }
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
             alert('שגיאת התחברות: ' + error.message);
             console.error(error);
@@ -481,13 +481,13 @@ async function signup() {
         return;
     }
     try {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
         if (error) {
             alert('שגיאת הרשמה: ' + error.message);
         } else {
             let nickname = prompt('בחר שם תצוגה ללידרבורד:', email.split('@')[0]);
             if (nickname && data.user) {
-                await supabase.from('profiles').insert({ user_id: data.user.id, nickname: nickname.trim() });
+                await supabaseClient.from('profiles').insert({ user_id: data.user.id, nickname: nickname.trim() });
             }
             alert('✅ נוצר חשבון! בדוק את תיבת האימייל שלך לאישור (אם מופעל)');
             document.querySelector('div[style*="position:fixed"]').remove();
@@ -498,13 +498,14 @@ async function signup() {
     }
 }
 
-// ====================== שמירה + לידרבורד (נשאר אותו דבר) ======================
+// ====================== שמירה + לידרבורד ======================
+// (שיניתי גם כאן ל-supabaseClient)
 async function saveGame(gameSlug, saveData) {
     if (!currentUser) {
         sessionStorage.setItem(`anon_save_${gameSlug}`, JSON.stringify(saveData));
         return;
     }
-    await supabase.from('game_saves').upsert({
+    await supabaseClient.from('game_saves').upsert({
         user_id: currentUser.id,
         game_slug: gameSlug,
         save_data: saveData
@@ -516,7 +517,7 @@ async function loadGame(gameSlug) {
         const data = sessionStorage.getItem(`anon_save_${gameSlug}`);
         return data ? JSON.parse(data) : null;
     }
-    const { data } = await supabase
+    const { data } = await supabaseClient
         .from('game_saves')
         .select('save_data')
         .eq('user_id', currentUser.id)
@@ -530,7 +531,7 @@ async function submitScore(gameSlug, metricValue, details) {
         alert('רק משתמשים מחוברים יכולים להיכנס ללידרבורד!');
         return;
     }
-    await supabase.from('high_scores').insert({
+    await supabaseClient.from('high_scores').insert({
         user_id: currentUser.id,
         game_slug: gameSlug,
         metric_value: metricValue,
@@ -540,7 +541,7 @@ async function submitScore(gameSlug, metricValue, details) {
 }
 
 async function getLeaderboard(gameSlug, limit = 10) {
-    const { data } = await supabase
+    const { data } = await supabaseClient
         .from('high_scores')
         .select(`*, profiles!inner(nickname)`)
         .eq('game_slug', gameSlug)
@@ -551,8 +552,26 @@ async function getLeaderboard(gameSlug, limit = 10) {
 
 async function showLeaderboard(gameSlug) {
     const leaderboard = await getLeaderboard(gameSlug, 10);
-    // ... (הקוד של המודל נשאר אותו דבר כמו קודם)
-    // אם אתה רוצה, אני יכול לתת לך גם אותו מתוקן
+    let html = `<h2 style="margin-bottom:20px;">🏆 לידרבורד - ${gameSlug.toUpperCase()}</h2>`;
+    html += `<table style="width:100%; border-collapse:collapse; color:white; font-size:1rem;">`;
+    html += `<tr style="background:#222;"><th style="padding:12px;">#</th><th style="padding:12px;">שם</th><th style="padding:12px;">ציון</th><th style="padding:12px;">פרטים</th></tr>`;
+    leaderboard.forEach((row, i) => {
+        const nick = row.profiles?.nickname || 'שחקן אנונימי';
+        const detailsStr = JSON.stringify(row.details || {}).slice(0, 70) + '...';
+        html += `<tr style="border-bottom:1px solid #333;">
+            <td style="padding:12px;">${i+1}</td>
+            <td style="padding:12px;">${nick}</td>
+            <td style="padding:12px; font-weight:700;">${row.metric_value}</td>
+            <td style="padding:12px; font-size:0.9rem;">${detailsStr}</td>
+        </tr>`;
+    });
+    html += `</table>`;
+    html += `<button onclick="getLeaderboard('${gameSlug}', 100).then(d => alert('כל הלידרבורד:\\n' + JSON.stringify(d, null, 2)))" style="margin-top:20px; padding:14px 30px; background:#00cec9; color:#000; border:none; border-radius:30px; font-weight:700;">הצג את כל הלידרבורד</button>`;
+
+    const modal = document.createElement('div');
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:99999; color:white;";
+    modal.innerHTML = `<div style="background:#1a1a2e; padding:30px; border-radius:20px; max-width:800px; max-height:90vh; overflow:auto;">${html}<br><button onclick="this.parentElement.parentElement.remove()" style="margin-top:25px; padding:12px 30px; background:#ff4757; color:white; border:none; border-radius:30px;">סגור</button></div>`;
+    document.body.appendChild(modal);
 }
 
 // טען משתמש בהתחלה + debug
