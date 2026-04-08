@@ -9,71 +9,30 @@ def x():
     def index():return 'google-site-verification: googlebf5e9f4bd69d6b9a.html'
     return y
 
-# --- 1. דף "בפיתוח" עם פס הניווט העליון מובנה! ---
+# --- 1. דף "בפיתוח" למשחקים החסרים ---
+# החזרתי אותו לעיצוב פשוט וחלק - כי עכשיו הוא יהיה מוצג יפה *מתחת* לסרגל הניווט החדש!
 def a(text):
     return f'''
       <!DOCTYPE html>
       <html lang="he" dir="rtl">
       <head>
           <meta charset="UTF-8">
-          <title>{text} - Arcade Station</title>
+          <title>{text}</title>
           <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;700;900&display=swap" rel="stylesheet">
           <style>
             body {{
-              margin: 0; font-family: 'Heebo', sans-serif; background-color: #0a0a0c;
-              background-image: radial-gradient(circle at 50% 0%, rgba(108, 124, 231, 0.15) 0%, transparent 50%),
-                                radial-gradient(circle at 50% 100%, rgba(0, 206, 201, 0.15) 0%, transparent 50%);
-              color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+              margin: 0; font-family: 'Heebo', sans-serif; background-color: #0a0a0c; color: #fff; 
+              display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
             }}
-            /* השורה העליונה שנוספה לתוך המשחק */
-            nav {{
-                position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
-                background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-                box-sizing: border-box;
-            }}
-            .brand-logo {{
-                display: flex; align-items: center; gap: 12px; text-decoration: none;
-                font-size: 1.5rem; font-weight: 900; background: linear-gradient(90deg, #fff, #a29bfe); 
-                -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            }}
-            .brand-logo img {{ height: 40px; border-radius: 8px; filter: drop-shadow(0 0 8px rgba(108,124,231,0.5)); }}
-            .nav-btn {{
-                background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);
-                padding: 8px 20px; border-radius: 30px; font-weight: 700; text-decoration: none; transition: 0.3s;
-            }}
-            .nav-btn:hover {{ background: rgba(255,255,255,0.2); transform: translateY(-2px); }}
-            
-            .container {{
-              text-align: center; padding: 50px 40px; background: rgba(30, 30, 36, 0.6); backdrop-filter: blur(16px);
-              border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); max-width: 500px; width: 90%;
-              animation: float 6s ease-in-out infinite; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(0, 206, 201, 0.1);
-              margin-top: 70px;
-            }}
-            .icon-wrapper {{ font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(0, 206, 201, 0.4)); }}
-            h1 {{ font-size: clamp(2rem, 5vw, 3rem); margin: 0; font-weight: 900; background: linear-gradient(90deg, #a29bfe, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            .subtitle {{ margin-top: 16px; font-size: 1.2rem; color: #b2bec3; font-weight: 300; }}
-            .progress-bar {{ width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 30px; position: relative; overflow: hidden; }}
-            .progress-bar::after {{ content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: linear-gradient(90deg, #6c7ce7, #00cec9); border-radius: 4px; animation: loading 2s infinite ease-in-out alternate; }}
-            @keyframes float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-10px); }} }}
-            @keyframes loading {{ 0% {{ left: -40%; }} 100% {{ left: 100%; }} }}
+            .container {{ text-align: center; padding: 40px; background: rgba(30, 30, 36, 0.6); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); }}
+            h1 {{ font-size: 2.5rem; background: linear-gradient(90deg, #a29bfe, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin:0;}}
           </style>
       </head>
       <body>
-        <!-- פס ניווט פנימי לכל משחק שמאפשר חזרה חלקה ללוגו -->
-        <nav>
-            <a href="/" class="brand-logo" title="חזור למסך הראשי">
-                <img src="/static/logo.png" alt="לוגו" onerror="this.style.display='none'"> 
-                Arcade Station
-            </a>
-            <a href="/" class="nav-btn">יציאה מהמשחק 🏠</a>
-        </nav>
-
         <div class="container">
-          <div class="icon-wrapper">🚧</div>
+          <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
           <h1>{text}</h1>
-          <div class="subtitle">המשחק הזה נמצא בפיתוח, קליבר!...</div>
-          <div class="progress-bar"></div>
+          <p style="color: #b2bec3; margin-top: 15px;">המשחק עדיין בפיתוח ע"י אביאל... סבלנות!</p>
         </div>
       </body>
       </html>
@@ -113,6 +72,8 @@ except ImportError: php_app = create_dummy_app("PHP App")
 try: from HTML import app as html_app
 except ImportError: html_app = create_dummy_app("html App")
 
+
+# --- 2. תוכנית האם (The Hub & Portal) ---
 main_app = Flask(__name__)
 
 @main_app.route('/logo.png')
@@ -122,6 +83,12 @@ def favicon():
 @main_app.route('/')
 def index():
     return render_template_string(MENU_HTML)
+
+# הנהקסם! כל כניסה למשחק מהתפריט תעבור דרך הפונקציה הזו
+# שמחזיקה מעטפת קבועה מלמעלה ושואבת את המשחק למסך למטה
+@main_app.route('/play/<path:target>')
+def play_view(target):
+    return render_template_string(PLAY_HTML, target=target)
 
 MENU_HTML = """
 <!DOCTYPE html>
@@ -150,7 +117,6 @@ MENU_HTML = """
         }
         @keyframes pulseBg { 0% { opacity: 0.8; } 100% { opacity: 1; } }
 
-        /* ניווט */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
             background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--card-border);
@@ -168,13 +134,12 @@ MENU_HTML = """
         .btn-danger { background: #ff4757; color: #fff; }
         .user-pill { background: rgba(108, 124, 231, 0.15); border: 1px solid rgba(108, 124, 231, 0.3); color: #fff; padding: 8px 18px; border-radius: 30px; display: none; }
 
-        /* ראשי */
         main { padding: 120px 20px 60px; text-align: center; }
         h1.main-title { font-size: clamp(2.5rem, 8vw, 4.5rem); margin-bottom: 10px; background: linear-gradient(135deg, #fff, #a29bfe, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
         .subtitle { color: var(--text-sub); font-size: 1.3rem; margin-bottom: 60px; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; max-width: 1300px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 20px; text-decoration: none; color: white; transition: all 0.4s; border: 1px solid var(--card-border); overflow: hidden; display: flex; flex-direction: column; text-align: right; }
+        .card { background: var(--card-bg); border-radius: 20px; text-decoration: none; color: white; transition: all 0.4s; border: 1px solid var(--card-border); overflow: hidden; display: flex; flex-direction: column; text-align: right; cursor:pointer; }
         .card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(108, 124, 231, 0.2); border-color: rgba(108, 124, 231, 0.4); }
         .card-cover { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 55px; border-bottom: 1px solid var(--card-border); background: linear-gradient(135deg, rgba(108,124,231,0.2), rgba(0,206,201,0.1)); text-shadow: 0 0 20px rgba(255,255,255,0.2); }
         .card-body { padding: 25px; display: flex; flex-direction: column; }
@@ -187,7 +152,7 @@ MENU_HTML = """
         .feedback-fab { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, #6c7ce7, #00cec9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; cursor: pointer; z-index: 990; border: none; transition: 0.3s; }
         .feedback-fab:hover { transform: scale(1.1); box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
 
-        /* מודלים */
+        /* מודלים של ההרשמה - סוף לבעיות שכחת המשתמש! */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content { background: rgba(25, 25, 32, 0.95); border: 1px solid var(--card-border); padding: 40px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); position: relative; text-align: right; max-height: 90vh; overflow-y: auto; }
@@ -199,12 +164,10 @@ MENU_HTML = """
         .input-box:focus { outline: none; border-color: var(--accent); }
         .hidden-group { display: none; }
 
-        /* טאבים מובהקים בהתחברות כדי לא לטעות יותר ב-Credentials */
         .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
         .auth-tab-btn { background: none; border: none; color: #a4b0be; font-size: 1.2rem; cursor: pointer; padding: 5px 10px; font-weight: bold; transition: 0.3s; }
         .auth-tab-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); padding-bottom: 2px; }
 
-        /* טאבים באדמין */
         .admin-modal { max-width: 900px; }
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 15px;}
         .admin-tab { background: none; border: none; color: var(--text-sub); font-size: 1.1rem; cursor: pointer; padding: 5px 15px; border-radius: 8px; }
@@ -214,7 +177,6 @@ MENU_HTML = """
         .user-list, .feedback-list { max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-left: 5px; }
         .user-row, .feedback-row { display: flex; flex-direction: column; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid transparent; }
         .user-row { cursor: pointer; flex-direction: row; justify-content: space-between; align-items: center;}
-        .user-row:hover { border-color: var(--primary); }
         
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
@@ -241,31 +203,31 @@ MENU_HTML = """
         <h1 class="main-title">בחר את ההרפתקה שלך</h1>
         <p class="subtitle">מסע המשחקים הבא שלך מתחיל ממש כאן. תהנה! 🎮</p>
 
+        <!-- שינוי גורלי: מעכשיו, כל קלף לוקח לפורטל /play/ מותאם! -->
         <div class="grid">
-            <a href="/game1/" class="card"><div class="card-cover">🏝️</div><div class="card-body"><h2>הישרדות</h2><span class="tag-badge">ניהול משאבים</span><p class="card-desc">שרדו בסביבה עוינת, אספו משאבים ובנו את המחנה שלכם מאפס.</p></div></a>
-            <a href="/game2/" class="card"><div class="card-cover" style="filter: hue-rotate(40deg);">⚔️</div><div class="card-body"><h2>RPG Legend</h2><span class="tag-badge">אקשן טקסטואלי</span><p class="card-desc">הכנסו לעולם פנטזיה אפי בו כל החלטה קובעת את גורלכם בקרב.</p></div></a>
-            <a href="/game3/" class="card"><div class="card-cover" style="filter: hue-rotate(80deg);">🚀</div><div class="card-body"><h2>Genesis</h2><span class="tag-badge">מסע בחלל</span><p class="card-desc">הטיסו חללית במרחבי הגלקסיה, גלו כוכבים ומצאו חיים חדשים.</p></div></a>
-            <a href="/game4/" class="card"><div class="card-cover" style="filter: hue-rotate(120deg);">💻</div><div class="card-body"><h2>קוד אדום</h2><span class="tag-badge">סייבר</span><p class="card-desc">הפכו להאקרים, פרצו מערכות מאובטחות והשלימו את המשימה.</p></div></a>
-            <a href="/game5/" class="card"><div class="card-cover" style="filter: hue-rotate(160deg);">🔫</div><div class="card-body"><h2>IRON LEGION</h2><span class="tag-badge">יריות ושרידה</span><p class="card-desc">גלי אויבים, נשקים עתידניים - האם תישארו אחרונים לעמוד?</p></div></a>
-            <a href="/game6/" class="card"><div class="card-cover" style="filter: hue-rotate(200deg);">🌑</div><div class="card-body"><h2>מבוך הצללים</h2><span class="tag-badge">אימה</span><p class="card-desc">מצאו את דרככם החוצה ממבוך חשוך ומצמרר לפני שיהיה מאוחר מדי.</p></div></a>
-            <a href="/game7/" class="card"><div class="card-cover" style="filter: hue-rotate(240deg);">🪐</div><div class="card-body"><h2>PROXIMA</h2><span class="tag-badge">מחקר עולמות</span><p class="card-desc">חקרו את סודות כוכב הלכת פרוקסימה והתמודדו עם תופעות מסתוריות.</p></div></a>
-            <a href="/game8/" class="card"><div class="card-cover" style="filter: hue-rotate(280deg);">🧬</div><div class="card-body"><h2>הטפיל</h2><span class="tag-badge">ביולוגיה</span><p class="card-desc">מסע הישרדות בתוך גוף אנושי כדי להילחם בנגיף קטלני.</p></div></a>
-            <a href="/game9/" class="card"><div class="card-cover" style="filter: hue-rotate(320deg);">🍀</div><div class="card-body"><h2>CLOVER</h2><span class="tag-badge">מזל טהור</span><p class="card-desc">הימור וסיכוי. קבלו את ההחלטות הנכונות וקחו את כל הקופה.</p></div></a>
-            <a href="/game10/" class="card"><div class="card-cover" style="filter: hue-rotate(360deg);">🏍️</div><div class="card-body"><h2>NEON RIDER</h2><span class="tag-badge">מרוץ</span><p class="card-desc">רכבו על אופנועי ניאון בעיר סייברפאנק תזזיתית והגיעו ראשונים.</p></div></a>
-            <a href="/game11/" class="card"><div class="card-cover" style="filter: hue-rotate(25deg);">📊</div><div class="card-body"><h2>Manager PRO</h2><span class="tag-badge">ניהול קבוצות</span><p class="card-desc">הקימו, אמנו ונהלו את קבוצת החלומות שלכם עד האליפות.</p></div></a>
+            <a href="/play/game1" class="card"><div class="card-cover">🏝️</div><div class="card-body"><h2>הישרדות</h2><span class="tag-badge">ניהול משאבים</span><p class="card-desc">שרדו בסביבה עוינת, אספו משאבים ובנו את המחנה שלכם מאפס.</p></div></a>
+            <a href="/play/game2" class="card"><div class="card-cover" style="filter: hue-rotate(40deg);">⚔️</div><div class="card-body"><h2>RPG Legend</h2><span class="tag-badge">אקשן טקסטואלי</span><p class="card-desc">הכנסו לעולם פנטזיה אפי בו כל החלטה קובעת את גורלכם בקרב.</p></div></a>
+            <a href="/play/game3" class="card"><div class="card-cover" style="filter: hue-rotate(80deg);">🚀</div><div class="card-body"><h2>Genesis</h2><span class="tag-badge">מסע בחלל</span><p class="card-desc">הטיסו חללית במרחבי הגלקסיה, גלו כוכבים ומצאו חיים חדשים.</p></div></a>
+            <a href="/play/game4" class="card"><div class="card-cover" style="filter: hue-rotate(120deg);">💻</div><div class="card-body"><h2>קוד אדום</h2><span class="tag-badge">סייבר</span><p class="card-desc">הפכו להאקרים, פרצו מערכות מאובטחות והשלימו את המשימה.</p></div></a>
+            <a href="/play/game5" class="card"><div class="card-cover" style="filter: hue-rotate(160deg);">🔫</div><div class="card-body"><h2>IRON LEGION</h2><span class="tag-badge">יריות ושרידה</span><p class="card-desc">גלי אויבים, נשקים עתידניים - האם תישארו אחרונים לעמוד?</p></div></a>
+            <a href="/play/game6" class="card"><div class="card-cover" style="filter: hue-rotate(200deg);">🌑</div><div class="card-body"><h2>מבוך הצללים</h2><span class="tag-badge">אימה</span><p class="card-desc">מצאו את דרככם החוצה ממבוך חשוך ומצמרר לפני שיהיה מאוחר מדי.</p></div></a>
+            <a href="/play/game7" class="card"><div class="card-cover" style="filter: hue-rotate(240deg);">🪐</div><div class="card-body"><h2>PROXIMA</h2><span class="tag-badge">מחקר עולמות</span><p class="card-desc">חקרו את סודות כוכב הלכת פרוקסימה והתמודדו עם תופעות מסתוריות.</p></div></a>
+            <a href="/play/game8" class="card"><div class="card-cover" style="filter: hue-rotate(280deg);">🧬</div><div class="card-body"><h2>הטפיל</h2><span class="tag-badge">ביולוגיה</span><p class="card-desc">מסע הישרדות בתוך גוף אנושי כדי להילחם בנגיף קטלני.</p></div></a>
+            <a href="/play/game9" class="card"><div class="card-cover" style="filter: hue-rotate(320deg);">🍀</div><div class="card-body"><h2>CLOVER</h2><span class="tag-badge">מזל טהור</span><p class="card-desc">הימור וסיכוי. קבלו את ההחלטות הנכונות וקחו את כל הקופה.</p></div></a>
+            <a href="/play/game10" class="card"><div class="card-cover" style="filter: hue-rotate(360deg);">🏍️</div><div class="card-body"><h2>NEON RIDER</h2><span class="tag-badge">מרוץ</span><p class="card-desc">רכבו על אופנועי ניאון בעיר סייברפאנק תזזיתית והגיעו ראשונים.</p></div></a>
+            <a href="/play/game11" class="card"><div class="card-cover" style="filter: hue-rotate(25deg);">📊</div><div class="card-body"><h2>Manager PRO</h2><span class="tag-badge">ניהול קבוצות</span><p class="card-desc">הקימו, אמנו ונהלו את קבוצת החלומות שלכם עד האליפות.</p></div></a>
+            <a href="/play/d" class="card"><div class="card-cover" style="filter: hue-rotate(25deg);">🐯</div><div class="card-body"><h2>Tiger Simulator</h2><span class="tag-badge">3D RPG</span><p class="card-desc">חקרו את יערות הפרא בתור טיגריס במשחק אקשן תלת מימד פראי במיוחד.</p></div></a>
         </div>
     </main>
 
-    <footer>&copy; 2026 Arcade Station - Aviel Aluf | x0583289789@gmail.com</footer>
+    <footer>&copy; 2026 Arcade Station - Aviel Aluf</footer>
 
     <!-- משוב -->
     <button class="feedback-fab" onclick="openModal('feedback-modal')">💬</button>
 
-    <!-- מודל התחברות החדש (מונע בלבול טעויות בהקלדת פרטים) -->
     <div id="auth-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'auth-modal')">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('auth-modal')">✖</button>
-            
             <h2 id="auth-edit-title" style="display:none; color: var(--accent);">עדכון פרופיל שחקן</h2>
             
             <div id="auth-tabs-container" class="auth-tabs">
@@ -320,7 +282,7 @@ MENU_HTML = """
         </div>
     </div>
 
-    <!-- מודל אדמין -->
+    <!-- אדמין -->
     <div id="admin-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'admin-modal')">
         <div class="modal-content admin-modal">
             <button class="modal-close" onclick="closeModal('admin-modal')">✖</button>
@@ -347,16 +309,16 @@ MENU_HTML = """
         const supUrl = 'https://ryoykooazoaordzmxdat.supabase.co';
         const supKey = 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B';
         const sp = supabase.createClient(supUrl, supKey);
-        let cUser = null;
-        let cMode = 'LOGIN'; 
+        let cUser = null; let cMode = 'LOGIN'; 
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function closeOnBgClick(e, id) { if(e.target.id === id) closeModal(id); }
 
+        // משודרג - GetSession מבטיח שהוא לא שוכח אותך בחיים מרענון
         async function checkUser() {
-            const { data } = await sp.auth.getUser();
-            cUser = data.user;
+            const { data } = await sp.auth.getSession();
+            cUser = data.session ? data.session.user : null;
             updateUI();
         }
 
@@ -375,50 +337,29 @@ MENU_HTML = """
 
         async function logout() { await sp.auth.signOut(); cUser = null; updateUI(); }
 
-        /* ======== לוגיקת טופס הרשמה חסינת טעויות ======== */
         function openAuthModal(mode) {
-            document.getElementById('f-email').value = '';
-            document.getElementById('f-pass').value = '';
-            
-            const eTitle = document.getElementById('auth-edit-title');
-            const tabsCon = document.getElementById('auth-tabs-container');
-            
-            if (mode === 'EDIT') {
-                eTitle.style.display = 'block';
-                tabsCon.style.display = 'none';
-                setAuthUI('EDIT');
-            } else {
-                eTitle.style.display = 'none';
-                tabsCon.style.display = 'flex';
-                setAuthUI(mode);
-            }
+            document.getElementById('f-email').value = ''; document.getElementById('f-pass').value = '';
+            const eTitle = document.getElementById('auth-edit-title'); const tabsCon = document.getElementById('auth-tabs-container');
+            if (mode === 'EDIT') { eTitle.style.display = 'block'; tabsCon.style.display = 'none'; setAuthUI('EDIT'); }
+            else { eTitle.style.display = 'none'; tabsCon.style.display = 'flex'; setAuthUI(mode); }
             openModal('auth-modal');
         }
 
         function setAuthUI(mode) {
             cMode = mode;
-            const tabLog = document.getElementById('auth-tab-login');
-            const tabSign = document.getElementById('auth-tab-signup');
-            const boxE = document.getElementById('box-email');
-            const boxP = document.getElementById('box-pass');
-            const boxN = document.getElementById('box-nick');
-            const bBtn = document.getElementById('auth-exec-btn');
+            const tL = document.getElementById('auth-tab-login'); const tS = document.getElementById('auth-tab-signup');
+            const bE = document.getElementById('box-email'); const bP = document.getElementById('box-pass'); const bN = document.getElementById('box-nick');
+            const btn = document.getElementById('auth-exec-btn');
 
             if (mode === 'LOGIN') {
-                tabLog?.classList.add('active'); tabSign?.classList.remove('active');
-                boxE.style.display = 'block'; boxP.style.display = 'block'; boxN.style.display = 'none';
-                bBtn.innerText = 'התחבר לחשבון שלי';
-                bBtn.onclick = doLogin;
+                tL.classList.add('active'); tS.classList.remove('active');
+                bE.style.display='block'; bP.style.display='block'; bN.style.display='none'; btn.innerText='התחבר לחשבון שלי'; btn.onclick=doLogin;
             } else if (mode === 'SIGNUP') {
-                tabLog?.classList.remove('active'); tabSign?.classList.add('active');
-                boxE.style.display = 'block'; boxP.style.display = 'block'; boxN.style.display = 'block';
-                bBtn.innerText = 'הרשמה ושמירת פרופיל';
-                bBtn.onclick = doSignUp;
+                tL.classList.remove('active'); tS.classList.add('active');
+                bE.style.display='block'; bP.style.display='block'; bN.style.display='block'; btn.innerText='הרשמה לחשבון חדש'; btn.onclick=doSignUp;
             } else if (mode === 'EDIT') {
-                boxE.style.display = 'none'; boxP.style.display = 'none'; boxN.style.display = 'block';
-                document.getElementById('f-nick').value = cUser.user_metadata?.nickname || '';
-                bBtn.innerText = 'שמור את השינויים';
-                bBtn.onclick = doEditProfile;
+                bE.style.display='none'; bP.style.display='none'; bN.style.display='block'; 
+                document.getElementById('f-nick').value = cUser.user_metadata?.nickname || ''; btn.innerText='שמור שינויים'; btn.onclick=doEditProfile;
             }
         }
 
@@ -427,81 +368,126 @@ MENU_HTML = """
             if(!e || !p) return alert("בבקשה מלא אימייל וסיסמה");
             const { error } = await sp.auth.signInWithPassword({ email:e, password:p });
             
-            // הודעה מיוחדת לשגיאת credentials
             if (error && error.message.includes("Invalid login credentials")) {
-                return alert("אוי! נראה שניסית להתחבר עם משתמש שלא קיים, או שהסיסמה שגויה. האם רצית ליצור משתמש חדש? לחץ על לשונית 'צור משתמש חדש' למעלה.");
-            } else if(error) {
-                return alert("שגיאת התחברות: " + error.message);
-            }
-            closeModal('auth-modal'); checkUser();
+                alert("אוי! נראה שניסית להתחבר עם משתמש שלא קיים, או שהמייל טרם אומת. זכור: עליך לבטל ב-Supabase את 'Confirm Email'.");
+            } else if(error) { alert("שגיאת התחברות: " + error.message); }
+            else { closeModal('auth-modal'); checkUser(); }
         }
 
         async function doSignUp() {
             const e = document.getElementById('f-email').value; const p = document.getElementById('f-pass').value; const n = document.getElementById('f-nick').value;
-            if(!e || !p || !n) return alert("נא למלא את כל השדות להרשמה מלאה!");
+            if(!e || !p || !n) return alert("חסרים נתונים!");
             const { data, error } = await sp.auth.signUp({ email:e, password:p, options:{ data:{ nickname:n } } });
-            if (error) return alert("שגיאת הרשמה: " + error.message);
-            if (data.user) await sp.from('profiles').upsert({ user_id: data.user.id, nickname: n });
-            alert("מזל טוב, נרשמת בהצלחה לאתר המשחקים!"); closeModal('auth-modal'); checkUser();
+            
+            if (error) return alert("שגיאה: " + error.message);
+            if (data.user) {
+                await sp.from('profiles').upsert({ user_id: data.user.id, nickname: n });
+                
+                // ההסבר המוחלט לחוסר כניסה!
+                if (!data.session) {
+                    alert("נרשמת למערכת, אבל ההגדרות ב-Supabase דורשות אימות מייל (Confirm Email)! בבקשה תכבה אותן בהגדרות כדי שיהיה אפשר להתחבר באופן חופשי.");
+                } else {
+                    alert("מזל טוב! אתה רשום ומחובר!"); checkUser();
+                }
+            }
+            closeModal('auth-modal'); 
         }
 
         async function doEditProfile() {
-            const n = document.getElementById('f-nick').value;
-            if(!n) return alert("הכנס כינוי");
-            await sp.auth.updateUser({ data: { nickname: n } });
-            await sp.from('profiles').upsert({ user_id: cUser.id, nickname: n });
+            const n = document.getElementById('f-nick').value; if(!n) return;
+            await sp.auth.updateUser({ data: { nickname: n } }); await sp.from('profiles').upsert({ user_id: cUser.id, nickname: n });
             alert("פרופיל עודכן!"); closeModal('auth-modal'); checkUser();
         }
 
-        /* ======== משובים ======== */
         function updateFeedbackUI() {
             const v = document.getElementById('fb-topic').value;
             document.getElementById('fb-game-box').style.display = (v === 'tech' || v === 'idea') ? 'block' : 'none';
             document.getElementById('fb-text-box').style.display = v ? 'block' : 'none';
         }
-
         async function submitFeedback() {
-            const top = document.getElementById('fb-topic').value;
-            const gam = document.getElementById('fb-game-box').style.display === 'block' ? document.getElementById('fb-game').value : 'כללי';
-            const txt = document.getElementById('fb-text').value;
-            if(!txt) return alert("בבקשה פרט קצת.");
-            
-            try {
-                const { error } = await sp.from('feedbacks').insert({
-                    user_email: cUser ? cUser.email : 'אורח', topic: top, game: gam, text: txt
-                });
-                if(error) alert("שגיאה! האם זכרת ליצור טבלת feedbacks באדמין של Supabase? (שגיאה: " + error.message + ")");
-                else alert('המשוב נשלח, צוות הפיתוח מודה לך! 🛠️');
-            } catch (err) { console.error(err); }
-            closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-text').value=''; updateFeedbackUI();
+            const t = document.getElementById('fb-topic').value; const g = document.getElementById('fb-game-box').style.display === 'block' ? document.getElementById('fb-game').value : 'כללי';
+            const tx = document.getElementById('fb-text').value; if(!tx) return;
+            try { await sp.from('feedbacks').insert({ user_email: cUser ? cUser.email : 'אורח', topic: t, game: g, text: tx }); alert('תודה על המשוב! ✨');
+            } catch (err) { } closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-text').value=''; updateFeedbackUI();
         }
 
-        /* ======== אדמין ======== */
         async function openAdminModal() {
             openModal('admin-modal'); switchAdminTab('users');
             const { data: uData } = await sp.from('profiles').select('*');
-            let uHtml = '';
-            (uData||[]).forEach(u => uHtml += `<div class="user-row"><div style="color:var(--accent);"><b>${u.nickname}</b><br><span style="font-size:0.8rem;color:#888;">ID: ${u.user_id}</span></div></div>`);
-            document.getElementById('admin-user-list').innerHTML = uHtml || 'אין נתונים';
-
-            const { data: fData, error: fErr } = await sp.from('feedbacks').select('*').order('created_at', { ascending: false });
-            let fHtml = '';
-            if(fErr || !fData || fData.length===0) fHtml = '<div style="text-align:center; padding:20px;">אין משובים במערכת עדיין.<br><span style="font-size:0.8rem; color:#888;">(וודא שיצרת טבלת feedbacks ב-Supabase)</span></div>';
-            else fData.forEach(f => {
-                const dType = f.topic === 'tech' ? '🛠️ תקלה' : f.topic === 'idea' ? '💡 הצעה' : '💬 הערה';
-                fHtml += `<div class="feedback-row"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><strong style="color:var(--accent);">${dType} | משחק: ${f.game || 'כללי'}</strong><small style="color:#777;">מאת: ${f.user_email}</small></div><p style="background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; margin:0; font-size:0.95rem;">${f.text}</p></div>`;
-            });
-            document.getElementById('admin-feedback-list').innerHTML = fHtml;
+            let uH = ''; (uData||[]).forEach(u => uH += `<div class="user-row"><div style="color:var(--accent);"><b>${u.nickname}</b><br><span style="font-size:0.8rem;color:#888;">ID: ${u.user_id}</span></div></div>`);
+            document.getElementById('admin-user-list').innerHTML = uH || 'אין נתונים';
+            const { data: fData, error: fE } = await sp.from('feedbacks').select('*').order('created_at', { ascending: false });
+            let fH = ''; if(fE || !fData || fData.length===0) fH = '<p style="text-align:center;">אין משובים.</p>';
+            else fData.forEach(f => fH += `<div class="feedback-row"><b style="color:var(--accent);">${f.topic} - ${f.game||'כללי'}</b><p>${f.text}</p><small style="color:#777;">מאת: ${f.user_email}</small></div>`);
+            document.getElementById('admin-feedback-list').innerHTML = fH;
         }
 
-        function switchAdminTab(tabName) {
-            document.getElementById('tab-users-btn').classList.toggle('active', tabName === 'users');
-            document.getElementById('tab-feedbacks-btn').classList.toggle('active', tabName === 'feedbacks');
-            document.getElementById('section-users').classList.toggle('active', tabName === 'users');
-            document.getElementById('section-feedbacks').classList.toggle('active', tabName === 'feedbacks');
+        function switchAdminTab(t) {
+            document.getElementById('tab-users-btn').classList.toggle('active', t === 'users'); document.getElementById('tab-feedbacks-btn').classList.toggle('active', t === 'feedbacks');
+            document.getElementById('section-users').classList.toggle('active', t === 'users'); document.getElementById('section-feedbacks').classList.toggle('active', t === 'feedbacks');
         }
-
         window.onload = checkUser;
+    </script>
+</body>
+</html>
+"""
+
+# HTML לעטיפת המשחקים בעמוד תחת סרגל ניווט מקורי
+PLAY_HTML = """
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Arcade Play - {{target}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body, html { margin: 0; padding: 0; background-color: #070709; color: #fff; font-family: 'Heebo', sans-serif; overflow: hidden; height: 100%; width: 100%; display: flex; flex-direction: column; }
+        
+        /* הסרגל היוקרתי הקבוע */
+        nav {
+            height: 70px; min-height: 70px;
+            background: rgba(10, 10, 15, 1); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); z-index: 10;
+        }
+        .brand-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; font-size: 1.5rem; font-weight: 900; background: linear-gradient(90deg, #fff, #a29bfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .brand-logo img { height: 40px; border-radius: 8px; filter: drop-shadow(0 0 8px rgba(108,124,231,0.5)); }
+        
+        .nav-controls { display: flex; gap: 15px; align-items: center; }
+        .user-pill { background: rgba(108, 124, 231, 0.15); border: 1px solid rgba(108, 124, 231, 0.3); color: #fff; padding: 8px 18px; border-radius: 30px; font-weight: bold; }
+        .back-btn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 30px; font-weight: 700; text-decoration: none; transition: 0.3s; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+        /* אזור המשחק (iframe לוקח בדיוק את כל המקום הפנוי שנותר!) */
+        iframe {
+            flex-grow: 1; width: 100%; border: none; display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand-logo" title="לוגו"><img src="/static/logo.png" alt="לוגו" onerror="this.style.display='none'">Arcade Station</a>
+        <div class="nav-controls">
+            <div id="player-status" class="user-pill" style="display:none;"></div>
+            <a href="/" class="back-btn">חזרה למסך הראשי 🔙</a>
+        </div>
+    </nav>
+    
+    <!-- הזרקת המשחק הספציפי היישר לתוך המעטפת (ללא שורות כפולות!) -->
+    <iframe src="/{{target}}" title="Game Window"></iframe>
+
+    <script>
+        const sp = supabase.createClient('https://ryoykooazoaordzmxdat.supabase.co', 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B');
+        async function fetchPlayer() {
+            const { data } = await sp.auth.getSession();
+            const usr = data.session?.user;
+            if (usr) {
+                const badge = document.getElementById('player-status');
+                badge.style.display = 'block';
+                badge.innerText = '👤 שחקן מחובר: ' + (usr.user_metadata?.nickname || 'אורח');
+            }
+        }
+        window.onload = fetchPlayer;
     </script>
 </body>
 </html>
@@ -516,6 +502,7 @@ def rrr():
     '''
     return y
 
+# --- חיבורים ראשיים ---
 app = DispatcherMiddleware(main_app, {
     '/game1': game1, '/game2': game2, '/game3': game3, '/game4': game4, '/game5': game5,
     '/game6': game6, '/game7': game7, '/game8': game8, '/game9': game9, '/game9/x=v':game9,
