@@ -216,7 +216,6 @@ MENU_HTML = """
             <a href="/play/game9" class="card"><div class="card-cover" style="filter: hue-rotate(320deg);">🍀</div><div class="card-body"><h2>CLOVER</h2><span class="tag-badge">מזל טהור</span><p class="card-desc">הימור וסיכוי. קבלו את ההחלטות הנכונות וקחו את כל הקופה.</p></div></a>
             <a href="/play/game10" class="card"><div class="card-cover" style="filter: hue-rotate(360deg);">🏍️</div><div class="card-body"><h2>NEON RIDER</h2><span class="tag-badge">מרוץ</span><p class="card-desc">רכבו על אופנועי ניאון בעיר סייברפאנק תזזיתית והגיעו ראשונים.</p></div></a>
             <a href="/play/game11" class="card"><div class="card-cover" style="filter: hue-rotate(25deg);">📊</div><div class="card-body"><h2>Manager PRO</h2><span class="tag-badge">ניהול קבוצות</span><p class="card-desc">הקימו, אמנו ונהלו את קבוצת החלומות שלכם עד האליפות.</p></div></a>
-            <a href="/play/d" class="card"><div class="card-cover" style="filter: hue-rotate(25deg);">🐯</div><div class="card-body"><h2>Tiger Simulator</h2><span class="tag-badge">3D RPG</span><p class="card-desc">חקרו את יערות הפרא בתור טיגריס במשחק אקשן תלת מימד פראי במיוחד.</p></div></a>
         </div>
     </main>
 
@@ -493,21 +492,13 @@ PLAY_HTML = """
 </html>
 """
 
-def rrr():
-    y = Flask(__name__)
-    @y.route('/')
-    def index():
-        return '''
-    <!DOCTYPE html><html lang=en><head><title>Tiger Simulator 3D</title><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><style>html{height:100%}body{margin:0;padding:0;background-color:#000;overflow:hidden;height:100%}#game{position:absolute;top:0;left:0;width:0;height:0;overflow:hidden;max-width:100%;max-height:100%;min-width:100%;min-height:100%;box-sizing:border-box}</style></head><body><iframe id=game frameborder=0 allow=autoplay allowfullscreen seamless scrolling=no></iframe><script type=text/javascript>(function(){function GameLoader(){this.init=function(){this._gameId="3e8831ba57bb4b559f8a84e95f7698fc";this._container=document.getElementById("game");this._loader={"enabled":true,"sdk_version":"1.15.2","_":55};this._hasImpression=false;this._hasSuccess=false;this._insertGameSDK();};this._insertGameSDK=function(){window["GD_OPTIONS"]={gameId:this._gameId,loader:this._loader,onLoaderEvent:this._onLoaderEvent.bind(this),onEvent:this._onEvent.bind(this)};(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="https://html5.api.gamedistribution.com/main.min.js";fjs.parentNode.insertBefore(js,fjs);})(document,"script","gamedistribution-jssdk");};this._loadGame=function(options){if(this._container_initialized)return;var searchPart="?hasImpression="+options.hasImpression+"&loaderEnabled=true&host="+window.location.hostname;var gameSrc="//html5.gamedistribution.com/rvvASMiM/"+this._gameId+"/index.html"+searchPart;this._container.src=gameSrc;this._container.onload=this._onFrameLoaded.bind(this);this._container_initialized=true;};this._onLoaderEvent=function(e){if(e.name==="LOADER_DATA"){this._bridge=e.message.bridge;this._game=e.message.game;}};this._onEvent=function(e){switch(e.name){case"SDK_GAME_START":this._bridge&&this._loadGame({hasImpression:this._hasImpression});break;case"AD_ERROR":case"AD_SDK_CANCELED":this._hasImpression=false||this._hasSuccess;break;case"ALL_ADS_COMPLETED":case"COMPLETE":case"USER_CLOSE":case"SKIPPED":this._hasImpression=true;this._hasSuccess=true;break;}};this._onFrameLoaded=function(){var container=this._container;setTimeout(function(){try{container.contentWindow.focus();}catch(err){}},100);};}new GameLoader().init();})();</script></body></html>
-    '''
-    return y
 
 # --- חיבורים ראשיים ---
 app = DispatcherMiddleware(main_app, {
     '/game1': game1, '/game2': game2, '/game3': game3, '/game4': game4, '/game5': game5,
     '/game6': game6, '/game7': game7, '/game8': game8, '/game9': game9, '/game9/x=v':game9,
     '/game10': game10, '/game11': game11, '/googlebf5e9f4bd69d6b9a.html':x(),
-    '/php': php_app, '/html': html_app, '/app1': html_app, '/d':rrr(), '/app2': php_app
+    '/php': php_app, '/html': html_app, '/app1': html_app, '/app2': php_app
 })
 
 if __name__ == "__main__":
