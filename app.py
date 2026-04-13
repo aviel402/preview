@@ -8,7 +8,6 @@ def x():
     @y.route('/')
     def index():return 'google-site-verification: googlebf5e9f4bd69d6b9a.html'
     return y
-
 # --- דף "בפיתוח" אלגנטי למשחקים החסרים ---
 def a(text):
     return f'''
@@ -33,7 +32,6 @@ def a(text):
       </body>
       </html>
     '''
-
 def create_dummy_app(text):
     dummy = Flask(__name__)
     @dummy.route('/')
@@ -79,7 +77,6 @@ def index(): return render_template_string(MENU_HTML)
 @main_app.route('/play/<path:target>')
 def play_view(target):
     return render_template_string(PLAY_HTML, target=target)
-
 # ==========================================
 # קוד 1 - התחנה הראשית (מסך המשתמש)
 # ==========================================
@@ -187,7 +184,6 @@ MENU_HTML = """
 </head>
 <body>
     <div class="bg-layer"></div>
-
     <nav>
         <div class="nav-right-area">
             <a href="/" class="brand-logo" title="חזור למסך הראשי">
@@ -232,10 +228,8 @@ MENU_HTML = """
 
         <div class="grid">
             <a href="/play/game1" class="card"><div class="card-cover">🏝️</div><div class="card-body"><h2>הישרדות</h2><span class="tag-badge">ניהול משאבים</span><p class="card-desc">שרדו בסביבה עוינת, אספו משאבים ובנו את המחנה שלכם מאפס.</p></div></a>
-            
             <!-- המשחק השני עם סמל יער! 🌲 -->
             <a href="/play/game2" class="card"><div class="card-cover">🌲</div><div class="card-body"><h2>Gold Forest</h2><span class="tag-badge">אקשן טקסטואלי</span><p class="card-desc">יער הזהב ממתין לך! גלו פנטזיה אדירה במעמקי יער מיתולוגי מלא באקשן.</p></div></a>
-            
             <a href="/play/game3" class="card"><div class="card-cover" style="filter: hue-rotate(80deg);">🚀</div><div class="card-body"><h2>Genesis</h2><span class="tag-badge">מסע בחלל</span><p class="card-desc">הטיסו חללית במרחבי הגלקסיה, גלו כוכבים ומצאו חיים חדשים.</p></div></a>
             <a href="/play/game4" class="card"><div class="card-cover" style="filter: hue-rotate(120deg);">💻</div><div class="card-body"><h2>קוד אדום</h2><span class="tag-badge">סייבר</span><p class="card-desc">הפכו להאקרים, פרצו מערכות מאובטחות והשלימו את המשימה.</p></div></a>
             <a href="/play/game5" class="card"><div class="card-cover" style="filter: hue-rotate(160deg);">🔫</div><div class="card-body"><h2>IRON LEGION</h2><span class="tag-badge">יריות ושרידה</span><p class="card-desc">גלי אויבים, נשקים עתידניים - האם תישארו אחרונים לעמוד?</p></div></a>
