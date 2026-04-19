@@ -594,7 +594,6 @@ def enemy_turn(p):
         p.hp = 0
         p.in_combat = False
         p.add_log("☠️ מסעך הסתיים...")
-        exit()
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
