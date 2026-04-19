@@ -28,7 +28,7 @@ def a(text):
         <div class="container">
           <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
           <h1>{text}</h1>
-          <p style="color: #b2bec3; margin-top: 15px;">המשחק הזה נמצא עדיין בפיתוח... אנא המתן עד שאביאל יסיים.</p>
+          <p style="color: #b2bec3; margin-top: 15px;">המשחק הזה נמצא עדיין בפיתוח... אנא המתן עד שיפותח.</p>
         </div>
       </body>
       </html>
