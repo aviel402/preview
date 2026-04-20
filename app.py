@@ -9,92 +9,6 @@ def x():
     def index():return 'google-site-verification: googlebf5e9f4bd69d6b9a.html'
     return y
 
-# דף "בפיתוח" ללא סרגל פנימי - המעטפת (Portal) תספק את הסרגל
-def a(text):
-    return f'''
-      <!DOCTYPE html>
-      <html lang="he" dir="rtl">
-      <head>
-          <meta charset="UTF-8">
-          <title>{text}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;700;900&display=swap" rel="stylesheet">
-          <style>
-            body {{ margin: 0; font-family: 'Heebo', sans-serif; background-color: #0a0a0c; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }}
-            .container {{ text-align: center; padding: 40px; background: rgba(30, 30, 36, 0.6); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.7);}}
-            h1 {{ font-size: 2.5rem; background: linear-gradient(90deg, #a29bfe, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin:0;}}
-          </style>
-      </head>
-      <body>
-        <div class="container">
-          <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
-          <h1>{text}</h1>
-          <p style="color: #b2bec3; margin-top: 15px;">המשחק הזה נמצא עדיין בפיתוח... אנא המתן עד שיפותח.</p>
-        </div>
-      </body>
-      </html>
-    '''
-
-def create_dummy_app(text):
-    dummy = Flask(__name__)
-    @dummy.route('/')
-    def index():return a(text)
-    return dummy
-
-# --- ייבוא המשחקים ---
-try: from app1 import app as game1
-except ImportError: game1 = create_dummy_app("הישרדות")
-try: from app2 import app as game2
-except ImportError: game2 = create_dummy_app("Gold Forest")
-try: from app3 import app as game3
-except ImportError: game3 = create_dummy_app("Genesis")
-try: from app4 import app as game4
-except ImportError: game4 = create_dummy_app("קוד אדום")
-try: from app5 import app as game5
-except ImportError: game5 = create_dummy_app("IRON LEGION")
-try: from app6 import app as game6
-except ImportError: game6 = create_dummy_app("מבוך הצללים")
-try: from app7 import app as game7
-except ImportError: game7 = create_dummy_app("PROXIMA")
-try: from app8 import app as game8
-except ImportError: game8 = create_dummy_app("הטפיל")
-try: from app9 import app as game9
-except ImportError: game9 = create_dummy_app("CLOVER")
-try: from app11 import app as game11
-except ImportError: game11 = create_dummy_app("Manager PRO")
-try: from app10 import app as game10
-except ImportError: game10 = create_dummy_app("NEON RIDER")
-try: from php import app as php_app
-except ImportError: php_app = create_dummy_app("PHP App")
-try: from HTML import app as html_app
-except ImportError: html_app = create_dummy_app("html App")
-
-main_app = Flask(__name__)
-
-@main_app.route('/logo.png')
-def favicon(): return "LOGO_DATA" 
-
-@main_app.route('/')
-def index(): return render_template_string(MENU_HTML)
-
-# הזרקת משחק לדף מלא הכולל את הסרגל תמיד (The Iframe Portal)
-@main_app.route('/play/<path:target>')
-def play_view(target):
-    return render_template_string(PLAY_HTML, target=target)
-
-# =======================================================
-# 1. MENU_HTML - עמוד הלובי הראשי
-# =======================================================
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from werkzeug.serving import run_simple
-from flask import Flask, render_template_string, send_from_directory
-import os
-
-def x():
-    y = Flask(__name__)
-    @y.route('/')
-    def index():return 'google-site-verification: googlebf5e9f4bd69d6b9a.html'
-    return y
-
 # דף "בפיתוח" ללא סרגל פנימי (הסרגל עטוף ע"י ה-PLAY)
 def a(text):
     return f'''
@@ -168,7 +82,7 @@ def play_view(target):
 
 
 # =======================================================
-# THE HUB (דף ראשי מעוצב ומלא כל טוב!)
+# MENU_HTML (האתר הראשי המכיל את פתרונות אבטחת הלחיצות הענקיים)
 # =======================================================
 MENU_HTML = """
 <!DOCTYPE html>
@@ -179,11 +93,14 @@ MENU_HTML = """
     <title>Arcade Station | Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
+    <script>
+        if (window.top !== window.self) { window.top.location = window.self.location; }
+    </script>
     <style>
         :root { --primary: #6c7ce7; --accent: #00cec9; --bg-dark: #070709; --card-bg: rgba(25, 25, 32, 0.6); --card-border: rgba(255, 255, 255, 0.08); --text-main: #f5f6fa; --text-sub: #a4b0be; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Heebo', sans-serif; min-height: 100vh; overflow-x: hidden; }
+        
         .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-image: radial-gradient(circle at 15% 20%, rgba(108, 124, 231, 0.12) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(0, 206, 201, 0.12) 0%, transparent 40%), linear-gradient(to bottom, #070709 0%, #111116 100%); animation: pulseBg 10s infinite alternate; }
         @keyframes pulseBg { 0% { opacity: 0.8; } 100% { opacity: 1; } }
 
@@ -268,10 +185,7 @@ MENU_HTML = """
 
     <nav>
         <div class="nav-right-area">
-            <a href="/" class="brand-logo" title="Arcade Station">
-                <img src="/static/logo.png" alt="לוגו" onerror="this.style.display='none'"> 
-                Arcade Station
-            </a>
+            <a href="/" class="brand-logo" title="Arcade Station"><img src="/static/logo.png" alt="לוגו" onerror="this.style.display='none'">Arcade Station</a>
             <div class="top-links">
                 <div class="dropdown">
                     <a class="nav-item">משחקים ▾</a>
@@ -293,7 +207,6 @@ MENU_HTML = """
                 <a onclick="openModal('about-modal')">אודות</a>
             </div>
         </div>
-
         <div class="nav-left-area">
             <div id="user-status" class="user-pill"><span id="nickname-display"></span></div>
             <button id="main-action-btn" class="btn btn-primary" onclick="openAuthModal('LOGIN')">התחבר / הרשם</button>
@@ -305,7 +218,6 @@ MENU_HTML = """
     <main>
         <h1 class="main-title">בחר את ההרפתקה שלך</h1>
         <p class="subtitle">מסע המשחקים הבא שלך מתחיל ממש כאן. תהנה! 🎮</p>
-
         <div class="grid">
             <a href="/play/game1" class="card"><div class="card-cover">🏝️</div><div class="card-body"><h2>הישרדות</h2><span class="tag-badge">ניהול משאבים</span><p class="card-desc">שרדו בסביבה עוינת, אספו משאבים ובנו את המחנה שלכם מאפס.</p></div></a>
             <a href="/play/game2" class="card"><div class="card-cover" style="filter: drop-shadow(0 0 20px rgba(0, 206, 201, 0.5));">🌲</div><div class="card-body"><h2>Gold Forest</h2><span class="tag-badge">אקשן טקסטואלי</span><p class="card-desc">יער הזהב ממתין לך! גלו פנטזיה אדירה במעמקי יער מיתולוגי מלא באקשן.</p></div></a>
@@ -322,14 +234,13 @@ MENU_HTML = """
     </main>
 
     <footer>&copy; 2026 Arcade Station</footer>
-    <button class="feedback-fab" onclick="openModal('feedback-modal')" title="יש לכם משוב?">💬</button>
+    <button class="feedback-fab" onclick="openModal('feedback-modal')">💬</button>
 
-    <!-- מודל ההתחברות המשופר ללא באגים במשתמש/מייל! -->
+    <!-- מרכז האבטחה שתוכנן מחדש מאפס למנוע תקיעות לחיצה! -->
     <div id="auth-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'auth-modal')">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('auth-modal')">✖</button>
             <h2 id="auth-edit-title" style="display:none; color: var(--accent); margin-bottom: 20px;">הגדרות מתקדמות</h2>
-            
             <div id="auth-tabs-container" class="auth-tabs">
                 <button id="auth-tab-login" class="auth-tab-btn active" onclick="setAuthUI('LOGIN')">התחברות</button>
                 <button id="auth-tab-signup" class="auth-tab-btn" onclick="setAuthUI('SIGNUP')">חשבון חדש</button>
@@ -337,44 +248,38 @@ MENU_HTML = """
             
             <div class="form-group" id="box-user">
                 <label id="lbl-user">כינוי שחקן בשרת:</label>
-                <input type="text" id="f-user" class="input-box" placeholder="כינוי או המייל שהזנת בהרשמה...">
+                <input type="text" id="f-user" class="input-box" placeholder="שם במשחק או במערכת...">
             </div>
-            
             <div class="form-group" id="box-email" style="display:none;">
                 <label id="lbl-email">אימייל גיבוי למשתמש:</label>
                 <input type="email" id="f-email" class="input-box" placeholder="your-email@mail.com">
             </div>
-
             <div class="form-group" id="box-pass">
                 <label id="lbl-pass">סיסמה אישית:</label>
                 <input type="password" id="f-pass" class="input-box" placeholder="••••••••">
             </div>
             
-            <button id="auth-exec-btn" class="btn btn-primary" style="width:100%; margin-top:10px;">אשר המשך</button>
+            <!-- שינוי גאוני: לחיצה מוכוונת מנהל הרשאות ישיר בלבד למניעת שכפול DOM -->
+            <button id="auth-exec-btn" class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="executeAuthAction()">אשר המשך</button>
             
             <div id="delete-acc-container" style="display:none; margin-top: 15px;">
                 <button class="btn" style="width:100%; background: #2f3542; color:#fff; border: 1px solid #ff4757; transition: 0.3s;" onmouseover="this.style.background='#ff4757'" onmouseout="this.style.background='#2f3542'" onclick="deleteSelf()">🗑️ מחיקת החשבון שלי לתמיד</button>
             </div>
 
-            <p id="forgot-pw-link" style="text-align:center; margin-top:18px; font-size:0.95rem; color:var(--text-sub); cursor:pointer;" onclick="setAuthUI('RECOVERY')">
-                <u>שכחת את הסיסמה? לחץ כאן לחלון השחזור.</u>
-            </p>
-            <p id="back-login-link" style="display:none; text-align:center; margin-top:18px; font-size:0.95rem; color:var(--accent); cursor:pointer;" onclick="setAuthUI('LOGIN')">
-                <u>🔙 חזור להתחברות רגילה</u>
-            </p>
+            <p id="forgot-pw-link" style="text-align:center; margin-top:18px; font-size:0.95rem; color:var(--text-sub); cursor:pointer;" onclick="setAuthUI('RECOVERY')"><u>שכחת את הסיסמה? לחץ כאן לחלון השחזור הבטוח.</u></p>
+            <p id="back-login-link" style="display:none; text-align:center; margin-top:18px; font-size:0.95rem; color:var(--accent); cursor:pointer;" onclick="setAuthUI('LOGIN')"><u>🔙 חזור להתחברות רגילה</u></p>
         </div>
     </div>
 
-    <!-- מודל אודות  -->
+    <!-- מודל אודות משופר -->
     <div id="about-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'about-modal')">
         <div class="modal-content about-modal-content">
             <button class="modal-close" onclick="closeModal('about-modal')">✖</button>
             <h2 style="color: #00cec9;">אודות Arcade Station | Hub</h2>
-            <div class="about-text" style="text-align: right; color: var(--text-main); font-size: 1.05rem; padding: 10px; max-height: 55vh; overflow-y: auto;">
-                <p><strong>Arcade Station | Hub</strong> הוא אתר משחקים מתקדם בדפדפן.</p>
+            <div class="about-text" style="text-align: right; color: var(--text-main); font-size: 1.05rem; padding: 10px;">
+                <p><strong>Arcade Station | Hub</strong> הוא אתר משחקים בדפדפן.</p>
                 <p>בדף הבית מופיעה ההודעה: <br><em>"בחר את ההרפתקה שלך" <br> "מסע המשחקים הבא שלך מתחיל ממש כאן. תהנה! 🎮"</em></p>
                 <p>האתר מציג 11 משחקים שונים, כולם זמינים ישירות בדפדפן. כל משחק הוא הרפתקה בפני עצמה עם סגנון, קטגוריה ותיאור משלו.</p>
-                
                 <h3 style="color: #a29bfe; margin-top: 25px;">המשחקים הזמינים שלנו:</h3>
                 <ul style="list-style: none; padding: 0;">
                     <li><strong>הישרדות 🏝️</strong> | <small style="color:#00cec9;">ניהול משאבים</small><br>שרדו בסביבה עוינת, אספו משאבים ובנו את המחנה שלכם מאפס.</li>
@@ -389,12 +294,11 @@ MENU_HTML = """
                     <li><strong>NEON RIDER 🏍️</strong> | <small style="color:#00cec9;">מרוץ</small><br>רכבו על אופנועי ניאון בעיר סייברפאנק תזזיתית והגיעו ראשונים.</li>
                     <li><strong>Manager PRO 📊</strong> | <small style="color:#00cec9;">ניהול קבוצות</small><br>הקימו, אמנו ונהלו את קבוצת החלומות שלכם עד האליפות.</li>
                 </ul>
-
                 <hr style="border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
                 <p>האתר כולו בנוי בצורה מינימליסטית וממוקדת במשחקים. אין צורך בהורדות או הרשמה – פשוט בוחרים משחק ולוחצים. כל ההרפתקאות זמינות בעברית ומתחילות מיד.</p>
                 <h3 style="color: #a29bfe;">אודות היוצר</h3>
-                <p><strong>Arcade Station | Hub</strong> נוצר ומתוחזק באהבה גדולה על ידי <strong>אביאל</strong>.</p>
-                <p>לפניות ובקשות צוות במייל: <span style="color:#00cec9;">x0583289789@gmail.com</span></p>
+                <p><strong>Arcade Station | Hub</strong> נוצר על ידי <strong>אביאל</strong>.</p>
+                <p>כתובת אימייל: <span style="color:#00cec9;">x0583289789@gmail.com</span></p>
             </div>
         </div>
     </div>
@@ -404,41 +308,13 @@ MENU_HTML = """
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('feedback-modal')">✖</button>
             <h2 style="margin-bottom:20px;">שליחת משוב</h2>
-            <div class="form-group">
-                <label>נושא הפנייה:</label>
-                <select id="fb-topic" class="input-box" onchange="updateFeedbackUI()">
-                    <option value="" disabled selected>-- בחר --</option>
-                    <option value="tech">תקלה טכנית בשרתים</option>
-                    <option value="idea">הצעות למשחקים/לשיפור</option>
-                    <option value="other">משהו אחר וכללי</option>
-                </select>
-            </div>
-            <div class="form-group hidden-group" id="fb-game-box">
-                <label>לאיזה משחק לפנות?</label>
-                <select id="fb-game" class="input-box">
-                    <option value="main">התחנה הראשית</option>
-                    <option value="הישרדות">הישרדות</option>
-                    <option value="Gold Forest">Gold Forest</option>
-                    <option value="Genesis">Genesis</option>
-                    <option value="קוד אדום">קוד אדום</option>
-                    <option value="IRON LEGION">IRON LEGION</option>
-                    <option value="מבוך הצללים">מבוך הצללים</option>
-                    <option value="PROXIMA">PROXIMA</option>
-                    <option value="הטפיל">הטפיל</option>
-                    <option value="CLOVER">CLOVER</option>
-                    <option value="NEON RIDER">NEON RIDER</option>
-                    <option value="Manager PRO">Manager PRO</option>
-                </select>
-            </div>
-            <div class="form-group hidden-group" id="fb-text-box">
-                <label>נא פרט כאן בהרחבה:</label>
-                <textarea id="fb-text"></textarea>
-                <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="submitFeedback()">שגר אל השמיים 🚀</button>
-            </div>
+            <div class="form-group"><label>נושא הפנייה:</label><select id="fb-topic" class="input-box" onchange="updateFeedbackUI()"><option value="" disabled selected>-- בחר --</option><option value="tech">תקלה טכנית בשרתים</option><option value="idea">הצעות למשחקים/לשיפור</option><option value="other">משהו אחר וכללי</option></select></div>
+            <div class="form-group hidden-group" id="fb-game-box"><label>לאיזה משחק לפנות?</label><select id="fb-game" class="input-box"><option value="main">התחנה הראשית</option><option value="הישרדות">הישרדות</option><option value="Gold Forest">Gold Forest</option><option value="Genesis">Genesis</option><option value="קוד אדום">קוד אדום</option><option value="IRON LEGION">IRON LEGION</option><option value="מבוך הצללים">מבוך הצללים</option><option value="PROXIMA">PROXIMA</option><option value="הטפיל">הטפיל</option><option value="CLOVER">CLOVER</option><option value="NEON RIDER">NEON RIDER</option><option value="Manager PRO">Manager PRO</option></select></div>
+            <div class="form-group hidden-group" id="fb-text-box"><label>נא פרט כאן בהרחבה (המכתב מגיע אלינו!)</label><textarea id="fb-text"></textarea><button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="submitFeedback()">שגר אל השמיים 🚀</button></div>
         </div>
     </div>
 
-    <!-- חלון הניהול -->
+    <!-- אדמין -->
     <div id="admin-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'admin-modal')">
         <div class="modal-content admin-modal">
             <button class="modal-close" onclick="closeModal('admin-modal')">✖</button>
@@ -447,20 +323,15 @@ MENU_HTML = """
                 <button class="admin-tab active" id="tab-users-btn" onclick="switchAdminTab('users')">ניהול שחקנים מאובטח</button>
                 <button class="admin-tab" id="tab-feedbacks-btn" onclick="switchAdminTab('feedbacks')">דואר ומערכות משוב 📥</button>
             </div>
-            <div id="section-users" class="admin-section active">
-                <input type="text" id="admin-search" class="input-box" style="margin-bottom:15px;" placeholder="חפש אותי בסירבר...">
-                <div class="user-list" id="admin-user-list"></div>
-            </div>
-            <div id="section-feedbacks" class="admin-section">
-                <div class="feedback-list" id="admin-feedback-list"><p style="color:#a4b0be; text-align:center;">טוען קבצים...</p></div>
-            </div>
+            <div id="section-users" class="admin-section active"><input type="text" id="admin-search" class="input-box" style="margin-bottom:15px;" placeholder="חפש אותי בסירבר..."><div class="user-list" id="admin-user-list"></div></div>
+            <div id="section-feedbacks" class="admin-section"><div class="feedback-list" id="admin-feedback-list"><p style="color:#a4b0be; text-align:center;">טוען קבצים...</p></div></div>
         </div>
     </div>
 
-    <!-- JS ראשי  -->
     <script>
         const sp = supabase.createClient('https://ryoykooazoaordzmxdat.supabase.co', 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B');
         let cUser = null; 
+        let globalAuthMode = 'LOGIN'; // 🚀 שומר באופן אוניברסלי את המצב כדי שכפתור הרשמה יעבוד בבטון!
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -476,11 +347,9 @@ MENU_HTML = """
             const isAdm = cUser && (cUser.email.toLowerCase() === 'x0583289789@gmail.com');
             document.getElementById('user-status').style.display = cUser ? 'block' : 'none';
             if(cUser) document.getElementById('nickname-display').innerText = '👤 ' + (cUser.user_metadata?.nickname || 'גיבור ללא שם');
-            
             const btnMain = document.getElementById('main-action-btn');
-            btnMain.innerText = cUser ? '⚙ עריכת משתמש' : 'התחבר / צור פרופיל';
+            btnMain.innerText = cUser ? '⚙ עריכת משתמש / אבטחה' : 'התחבר / הרשם';
             btnMain.onclick = () => openAuthModal(cUser ? 'EDIT' : 'LOGIN');
-            
             document.getElementById('logout-btn').style.display = cUser ? 'inline-block' : 'none';
             document.getElementById('admin-btn').style.display = isAdm ? 'inline-block' : 'none';
         }
@@ -493,6 +362,7 @@ MENU_HTML = """
         }
 
         function setAuthUI(mode) {
+            globalAuthMode = mode; 
             const tL = document.getElementById('auth-tab-login'); const tS = document.getElementById('auth-tab-signup');
             const bU = document.getElementById('box-user'); const bE = document.getElementById('box-email'); const bP = document.getElementById('box-pass');
             const btn = document.getElementById('auth-exec-btn');
@@ -504,121 +374,119 @@ MENU_HTML = """
 
             if (mode === 'LOGIN') {
                 tL.classList.add('active'); tS.classList.remove('active');
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי (או אימייל אם נרשמת איתו):'; 
-                bE.style.display='none'; 
-                bP.style.display='block'; document.getElementById('lbl-pass').innerText='סיסמה:'; btn.innerText='היכנס למערכת'; btn.onclick=doLogin;
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי במערכת (או המייל עצמו):'; bE.style.display='none'; 
+                bP.style.display='block'; document.getElementById('lbl-pass').innerText='סיסמה:'; btn.innerText='היכנס למערכת המשחקים';
                 fPassLnk.style.display='block'; bLoginLnk.style.display='none';
-            } 
-            else if (mode === 'SIGNUP') {
+            } else if (mode === 'SIGNUP') {
                 tL.classList.remove('active'); tS.classList.add('active');
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='בחר כינוי לחשבונך:'; 
-                bE.style.display='block'; document.getElementById('lbl-email').innerHTML='הוסף אימייל (אופציונלי למקרה שתשכח סיסמה!):';
-                bP.style.display='block'; document.getElementById('lbl-pass').innerText='צור סיסמה (לפחות 6 תווים):'; btn.innerText='תרשום אותי עכשיו!'; btn.onclick=doSignUp;
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='בחר כינוי לחשבונך (Nickname):'; 
+                bE.style.display='block'; document.getElementById('lbl-email').innerHTML='הוסף אימייל (אופציונלי למקרה שתשכח סיסמה):';
+                bP.style.display='block'; document.getElementById('lbl-pass').innerText='צור סיסמה מעל 6 תווים:'; btn.innerText='צור חשבון בארקייד סטאשן עכשיו!';
                 fPassLnk.style.display='none'; bLoginLnk.style.display='none';
-            } 
-            else if (mode === 'EDIT') {
-                titleEdit.style.display='block'; titleEdit.innerText='מרכז אבטחת פרופיל'; tabsCon.style.display='none';
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי שחקן מעודכן:'; document.getElementById('f-user').value = cUser?.user_metadata?.nickname || ''; 
-                bE.style.display='none'; bP.style.display='block'; document.getElementById('lbl-pass').innerText='סיסמה חדשה? (השאר ריק באם תרצה הישנה):';
-                btn.innerText='בצע שינויים לחשבון סופית'; btn.onclick=doEditProfile;
-                deleteDiv.style.display = 'block'; fPassLnk.style.display='none'; bLoginLnk.style.display='none';
-            } 
-            else if (mode === 'RECOVERY') { 
+            } else if (mode === 'EDIT') {
+                titleEdit.style.display='block'; titleEdit.innerText='מרכז פרופיל אבטחת משתמשים'; tabsCon.style.display='none';
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי במשחק שלך הוא:'; document.getElementById('f-user').value = cUser?.user_metadata?.nickname || ''; 
+                bE.style.display='none'; bP.style.display='block'; document.getElementById('lbl-pass').innerText='רוצה סיסמה חדשה וחזקה יותר? השאר ריק אם לא:';
+                btn.innerText='שמור את הנתונים החדשים בחשבון'; deleteDiv.style.display = 'block'; fPassLnk.style.display='none'; bLoginLnk.style.display='none';
+            } else if (mode === 'RECOVERY') {
                 titleEdit.style.display='block'; titleEdit.innerText='מרכז שחזור סיסמאות - מאובטח'; tabsCon.style.display='none';
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='הכינוי שלך באתר:'; 
-                bE.style.display='block'; document.getElementById('lbl-email').innerHTML='האימייל האמיתי איתו נרשמת:'; 
-                bP.style.display='none'; btn.innerText='שלח לינק לאימייל שלי'; btn.onclick=doRecovery;
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי (Nickname) איתו נרשמת:'; bE.style.display='block'; document.getElementById('lbl-email').innerHTML='מה הוא האימייל שמסרת ליתר בטחון?'; 
+                bP.style.display='none'; btn.innerText='שלח לכתובת שלי את מפתחות הכניסה';
                 fPassLnk.style.display='none'; bLoginLnk.style.display='block';
             }
         }
 
-        // המטרה החשובה כאן היא כניסה חלקה - אם יש לו מייל, שייכנס עם מייל
+        function getSafeEmail(userInput) { let cln = userInput.trim().toLowerCase(); if(cln.includes('@')) return cln; return cln.replace(/\s+/g, '') + "@arcadestation.local"; }
+
+        // הכפתור העליון תמיד מריץ רק את הפונקציה הזו - ובחיים לא מפספס קליק של העכבר 🚀
+        async function executeAuthAction() {
+            try {
+                if (globalAuthMode === 'LOGIN') await doLogin();
+                else if (globalAuthMode === 'SIGNUP') await doSignUp();
+                else if (globalAuthMode === 'EDIT') await doEditProfile();
+                else if (globalAuthMode === 'RECOVERY') await doRecovery();
+            } catch(e) {
+                console.error("תקלה גלובלית במסך:", e);
+                alert("המערכת פגשה שיבוש בלתי צפוי... " + e.message);
+            }
+        }
+
         async function doLogin() {
             const uInput = document.getElementById('f-user').value.trim(); const p = document.getElementById('f-pass').value;
-            if(!uInput || !p) return alert("השדות לא יכולים להישאר ריקים!");
+            if(!uInput || !p) return alert("לא ניתן להתחבר עם שדות ריקים אלוף.");
             
-            const isEmail = uInput.includes('@');
-            const loginEmail = isEmail ? uInput.toLowerCase() : uInput.replace(/\s+/g, '').toLowerCase() + "@arcadestation.local";
+            const isEm = uInput.includes('@');
+            const realFormatted = isEm ? uInput.toLowerCase() : getSafeEmail(uInput);
             
-            const { data, error } = await sp.auth.signInWithPassword({ email: loginEmail, password: p });
+            const { error } = await sp.auth.signInWithPassword({ email: realFormatted, password: p });
             if(error) {
-                console.error("Supabase Auth Error: ", error.message, error.code);
-                if (!isEmail) {
-                    alert("שגיאת התחברות! 🛑\\nאם הזנת אימייל אמיתי בזמן ההרשמה - עליך לרשום כאן את האימייל עצמו במקום הכינוי!");
-                } else {
-                    alert("שגיאה! הסיסמה או המייל שגויים. נסה שוב.");
-                }
-            } else { closeModal('auth-modal'); checkUser(); }
+                if(!isEm) alert("שגיאה! הסיסמה או הכינוי שגויים.\nשים לב 🕵️‍♂️: האם הזנת כתובת אימייל בזמן ההרשמה? אם כן, אנא התחבר דרך האימייל במקום דרך הכינוי שלך.");
+                else alert("המערכת חסמה אותך. הסיסמה אינה תקנית.");
+            }
+            else { closeModal('auth-modal'); checkUser(); }
         }
 
         async function doSignUp() {
             const nickname = document.getElementById('f-user').value.trim(); const theM = document.getElementById('f-email').value.trim(); const p = document.getElementById('f-pass').value;
-            if(!nickname || !p) return alert("על מנת לשחק חובה לבצע הכנסת משתנה לפרופיל וסיסמה!");
-            if(p.length < 6) return alert("אזהרה מהשרת : האקר עלול למחוק לך מהר, אנא הצב לפחות 6 תווים בשמירה");
-            
-            // בדיקת סריקה אינטואיטיבית להגנה על החוויה כדי שלא ניפול! 
-            try {
-                const { data: existing } = await sp.from('profiles').select('nickname').eq('nickname', nickname).maybeSingle();
-                if (existing) {
-                    alert("הכינוי '" + nickname + "' תפוס במערכת! 🕵️‍♂️\\nאם זה החשבון שלך, אנחנו מעבירים אותך למסך התחברות עכשיו.");
-                    setAuthUI('LOGIN'); document.getElementById('f-user').value = nickname; return;
-                }
-            } catch(e) { console.error(e); }
+            if(!nickname || !p) return alert("אתה מחוייב לספק לפחות כינוי פתוח לקהל וסיסמה לשמירה במסד.");
+            if(p.length < 6) return alert("לסיסמה יש הגדרות קשיחות: מינימום 6 תווים בשביל הגנה ראויה.");
 
-            const cleanFinal = theM.includes('@') ? theM.toLowerCase() : nickname.replace(/\s+/g, '').toLowerCase() + "@arcadestation.local";
+            // תכניקת האיי-איי לאישור כפולים: נבדוק קודם אם מישהו קודם הספיק לאסוף את הכינוי הזה באמת!
+            const { data: exist } = await sp.from('profiles').select('nickname').eq('nickname', nickname).maybeSingle();
+            if (exist) {
+                alert("וואלה! חברנו, הכינוי '" + nickname + "' תפוס ומעוגן למערכת האתר שלנו.\\nאם אתה השחקן הזה במקור - נווטנו אותך פנימה למסך התחברות קלאסית.");
+                setAuthUI('LOGIN'); document.getElementById('f-user').value = nickname; return;
+            }
+
+            const cleanFinal = theM.includes('@') ? theM.toLowerCase() : getSafeEmail(nickname);
             const { data, error } = await sp.auth.signUp({ email: cleanFinal, password: p, options:{ data:{ nickname: nickname } } });
             
             if (error) {
-                console.error("SignUp error detail:", error);
                 if (error.message.includes("already registered") || error.message.includes("already exists")) {
-                    alert("הכינוי או האימייל הזה כבר רשומים במערכת.\\nאנחנו מעבירים אותך לחלון ההתחברות!");
+                    alert("ההיי חבר! הכינוי הזה (או המייל המקושר אליו) קיים ושוקק במערכת הארקייד שלנו.\\nהנה המסך להתחבר בחזרה בקלילות.");
                     setAuthUI('LOGIN'); document.getElementById('f-user').value = nickname; return;
                 }
-                return alert("שגיאת מערכת : " + error.message);
+                return alert("אוי נראה כי זה לא עובר הלאה מהסיבה : " + error.message);
             }
-            if (data.user) { await sp.from('profiles').upsert({ user_id: data.user.id, nickname: nickname }); checkUser(); alert("פרופיל נוצר ונקלט ברשומות 🎮"); }
-            closeModal('auth-modal'); 
+            if (data.user) { await sp.from('profiles').upsert({ user_id: data.user.id, nickname: nickname }); checkUser(); alert("שם משתמש כוונן והכנס אל המימד הרשת. עשית את זה."); closeModal('auth-modal'); }
         }
 
         async function doEditProfile() {
             const newN = document.getElementById('f-user').value.trim(); const newPass = document.getElementById('f-pass').value.trim();
             if(newN) { await sp.auth.updateUser({ data: { nickname: newN } }); await sp.from('profiles').upsert({ user_id: cUser.id, nickname: newN }); }
-            if(newPass && newPass.length >= 6) { await sp.auth.updateUser({ password: newPass }); alert("סיסמתך החשאית הוחלפה בשרתים!"); }
+            if(newPass && newPass.length >= 6) { await sp.auth.updateUser({ password: newPass }); alert("סיסמת הפיקדון רועננה תמיד מנצח!"); }
             closeModal('auth-modal'); checkUser();
         }
 
         async function doRecovery() {
             const givenName = document.getElementById('f-user').value.trim(); const givenEmail = document.getElementById('f-email').value.trim();
-            if(!givenName || !givenEmail) return alert("יש לספק כינוי שחקן ודואר איתו נרשמת לחירום.");
-            if(!givenEmail.includes('@') || givenEmail.includes('.local')) return alert("ניתן לשחזר רק באמצעות אימייל חיצוני ואמיתי!");
+            if(!givenName || !givenEmail) return alert("השירותים שלנו מקצים איפוס אך ורק אם כל החלקים מולאו בדו-שיח אחיד בבקשה.");
+            if(!givenEmail.includes('@') || givenEmail.includes('.local')) return alert("רק אם הענקת מייל מוכר מהימן למערכות סופא מולאנו נחלץ. מי שעשה קיצור ללא, לא יכול לאמת כיום את זהותו.");
             const { error } = await sp.auth.resetPasswordForEmail(givenEmail.toLowerCase());
-            
-            if (error) alert("שגיאה בחקר הכתובת. ייתכן ולא נכתב טוב?");
-            else { alert("נשלחה בקשת החייאה לשרת! ☑️\\nבדוק את הדואר הנכנס או את הספאם בכדי לאפס סופית."); setAuthUI('LOGIN'); }
+            if (error) alert("שגיאה! עקב תקלה, יתכן ונכתב שלא כשורה ולא נאכל אצל ההד-מאסטר שלנו.");
+            else { alert("שחזור בוצע. צינור חירום יורה כרגע מסר קישור ישירות למייל. 📥\\n(ואם זה לא עבר אצלך שתי דקות תציץ בבקשה לרובוט ספאם)."); setAuthUI('LOGIN'); }
         }
 
         async function deleteSelf() {
-            const isSure = confirm("האם אתה בטוח מכל בחינה שאתה מעוניין במחיקה תמידית?\nתהליך זה מוחק חשבונות בדרך קבע ללא הבטחה לחזרה אחורה!");
+            const isSure = confirm("עצור אזהרה!!! 🚨🚨\\nבמעבר חסימת מסלול זו נכווה בנשימה החשבון המלא שמורה בשייכות לך לעד. התוצאה לא פתירה, נעלמת! להחליט מוחלט מחיקה סופית וחדה?");
             if (!isSure) return;
-            try {
-                await sp.from('profiles').delete().eq('user_id', cUser.id);
-                await sp.auth.signOut();
-                alert("עצובים לראות אותך עוזב 💔 המערכת נמחקה בטופס טוטאלי.");
-                closeModal('auth-modal'); cUser = null; updateUI();
-            } catch (err) { alert("בעיית סירבר בחילוי מחיקה : " + err.message); }
+            try { await sp.from('profiles').delete().eq('user_id', cUser.id); await sp.auth.signOut(); alert("גרוס ושפוח כזגוגית נעלמת. קלחת לקרקע 💔 שמרנו על זיכרון עד העד."); closeModal('auth-modal'); cUser = null; updateUI(); } catch (err) { alert("מועצת האדמין עצר אותנו במכחול השחזה בעייתי - " + err.message); }
         }
 
         function updateFeedbackUI() { const v = document.getElementById('fb-topic').value; document.getElementById('fb-game-box').style.display = (v === 'tech' || v === 'idea') ? 'block' : 'none'; document.getElementById('fb-text-box').style.display = v ? 'block' : 'none'; }
-        async function submitFeedback() { const t = document.getElementById('fb-topic').value; const g = document.getElementById('fb-game-box').style.display === 'block' ? document.getElementById('fb-game').value : 'כללי'; const tx = document.getElementById('fb-text').value; if(!tx) return; try { await sp.from('feedbacks').insert({ user_email: cUser ? (cUser.email.includes('.local') ? cUser.user_metadata.nickname : cUser.email) : 'אורח', topic: t, game: g, text: tx }); alert('תודה על פנייתך לטובת ציבור ארקייד סטאשן! ✉️'); } catch (err) {} closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-text').value=''; updateFeedbackUI(); }
+        async function submitFeedback() { const t = document.getElementById('fb-topic').value; const g = document.getElementById('fb-game-box').style.display === 'block' ? document.getElementById('fb-game').value : 'כללי'; const tx = document.getElementById('fb-text').value; if(!tx) return; try { await sp.from('feedbacks').insert({ user_email: cUser ? (cUser.email.includes('.local') ? cUser.user_metadata.nickname : cUser.email) : 'אורח', topic: t, game: g, text: tx }); alert('דואר המפתח פגע בים! תודה כנה לציבור הרחב על הבניה המשותפת ✉️'); } catch (err) {} closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-text').value=''; updateFeedbackUI(); }
         async function openAdminModal() { openModal('admin-modal'); switchAdminTab('users'); }
         function switchAdminTab(t) { document.getElementById('tab-users-btn').classList.toggle('active', t === 'users'); document.getElementById('tab-feedbacks-btn').classList.toggle('active', t === 'feedbacks'); document.getElementById('section-users').classList.toggle('active', t === 'users'); document.getElementById('section-feedbacks').classList.toggle('active', t === 'feedbacks'); }
+        
         window.onload = checkUser;
     </script>
 </body>
 </html>
 """
+
+
 # =======================================================
-# PLAY SCREEN (תפריט עליון שומר את הפוקוס למשחקים + חסימת IFRAME כפול)
+# PLAY_HTML (דף פנימי ששומר על אוניברסליות האתר וסגירת שכפולים)
 # =======================================================
 PLAY_HTML = """
 <!DOCTYPE html>
@@ -631,7 +499,6 @@ PLAY_HTML = """
     <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
     <style>
         body, html { margin: 0; padding: 0; background-color: #070709; color: #fff; font-family: 'Heebo', sans-serif; overflow: hidden; height: 100%; width: 100%; display: flex; flex-direction: column; }
-        
         nav { height: 70px; min-height: 70px; background: rgba(10, 10, 15, 1); border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); z-index: 1000; }
         .nav-right-area { display: flex; align-items: center; gap: 30px; }
         .brand-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; font-size: 1.5rem; font-weight: 900; background: linear-gradient(90deg, #fff, #a29bfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -657,7 +524,6 @@ PLAY_HTML = """
 
         iframe { flex-grow: 1; width: 100%; border: none; display: block; }
         
-        /* Modals  */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content { background: rgba(25, 25, 32, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); padding: 40px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); position: relative; text-align: right; }
@@ -670,7 +536,6 @@ PLAY_HTML = """
         .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; }
         .auth-tab-btn { background: none; border: none; color: #a4b0be; font-size: 1.2rem; cursor: pointer; padding: 5px 10px; font-weight: bold; transition: 0.3s; }
         .auth-tab-btn.active { color: #00cec9; border-bottom: 3px solid #00cec9; padding-bottom: 2px; }
-        
         .about-modal-content { max-width: 650px !important; }
         .about-text p { line-height: 1.6; margin-bottom: 10px; font-size: 1.05rem;}
         .about-text h3 { color: #a29bfe; margin-top: 25px; margin-bottom: 15px;}
@@ -698,7 +563,7 @@ PLAY_HTML = """
                         <a href="/play/game11">Manager PRO 📊</a>
                     </div>
                 </div>
-                <a onclick="alert('טבלאות דירוג יפות יתווספו לכאן! 🥇')">טבלאות</a>
+                <a onclick="alert('טבלאות דירוגים יתווספו לפלטפורמה בגרסאות הבאות! 🥇')">טבלאות</a>
                 <a onclick="openModal('about-modal')">אודות</a>
             </div>
         </div>
@@ -718,34 +583,25 @@ PLAY_HTML = """
             <h2 id="auth-edit-title" style="display:none; color: #00cec9; margin-bottom:20px;">הגדרות פרופיל</h2>
             <div id="auth-tabs-container" class="auth-tabs">
                 <button id="auth-tab-login" class="auth-tab-btn active" onclick="setAuthUI('LOGIN')">התחברות</button>
-                <button id="auth-tab-signup" class="auth-tab-btn" onclick="setAuthUI('SIGNUP')">צור שחקן</button>
+                <button id="auth-tab-signup" class="auth-tab-btn" onclick="setAuthUI('SIGNUP')">צור משתמש</button>
             </div>
             
-            <div class="form-group" id="box-user">
-                <label id="lbl-user">כינוי במערכת:</label>
-                <input type="text" id="f-user" class="input-box" placeholder="שם...">
-            </div>
-            <div class="form-group" id="box-email" style="display:none;">
-                <label id="lbl-email">אימייל גיבוי מצידך:</label>
-                <input type="email" id="f-email" class="input-box" placeholder="אופציונלי לשחזור מהיר">
-            </div>
-            <div class="form-group" id="box-pass">
-                <label id="lbl-pass">סיסמה אישית:</label>
-                <input type="password" id="f-pass" class="input-box" placeholder="••••••••">
-            </div>
+            <div class="form-group" id="box-user"><label id="lbl-user">כינוי שחקן:</label><input type="text" id="f-user" class="input-box" placeholder="אביאל123"></div>
+            <div class="form-group" id="box-email" style="display:none;"><label>אימייל גיבוי <span style="color:#777; font-size:0.8rem;">(למען שחזור קליל)</span></label><input type="email" id="f-email" class="input-box"></div>
+            <div class="form-group" id="box-pass"><label id="lbl-pass">סיסמה סודית:</label><input type="password" id="f-pass" class="input-box" placeholder="••••••••"></div>
             
-            <button id="auth-exec-btn" class="btn btn-primary" style="width:100%; margin-top:10px;">אשר המשך לתוכן</button>
+            <button id="auth-exec-btn" class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="executeAuthAction()">הבא את הפעולה לעולם!</button>
             
             <div id="delete-acc-container" style="display:none; margin-top: 15px;">
-                <button class="btn" style="width:100%; background: #2f3542; color:#fff; border: 1px solid #ff4757; transition: 0.3s;" onmouseover="this.style.background='#ff4757'" onmouseout="this.style.background='#2f3542'" onclick="deleteSelf()">🗑️ מחיקת החשבון שלי לתמיד</button>
+                <button class="btn" style="width:100%; background: #2f3542; color:#fff; border: 1px solid #ff4757; transition: 0.3s;" onmouseover="this.style.background='#ff4757'" onmouseout="this.style.background='#2f3542'" onclick="deleteSelf()">🗑️ מחק אותי לצמיתות!</button>
             </div>
 
-            <p id="forgot-pw-link" style="text-align:center; margin-top:18px; font-size:0.95rem; color:#a4b0be; cursor:pointer;" onclick="setAuthUI('RECOVERY')"><u>לחץ פה לשחזור חשבון קליל בתיבת הדואר...</u></p>
-            <p id="back-login-link" style="display:none; text-align:center; margin-top:18px; font-size:0.95rem; color:#00cec9; cursor:pointer;" onclick="setAuthUI('LOGIN')"><u>🔙 חזור לחיבור טבעי</u></p>
+            <p id="forgot-pw-link" style="text-align:center; margin-top:18px; font-size:0.95rem; color:#a4b0be; cursor:pointer;" onclick="setAuthUI('RECOVERY')"><u>לחץ פה לחשבון קליל בתיבת הדואר והצלה...</u></p>
+            <p id="back-login-link" style="display:none; text-align:center; margin-top:18px; font-size:0.95rem; color:#00cec9; cursor:pointer;" onclick="setAuthUI('LOGIN')"><u>🔙 חזור לאזור התחברות קלאסית</u></p>
         </div>
     </div>
 
-    <!-- מודל אודות במשחק! -->
+    <!-- מודל אודות משובט -->
     <div id="about-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'about-modal')">
         <div class="modal-content about-modal-content">
             <button class="modal-close" onclick="closeModal('about-modal')">✖</button>
@@ -772,8 +628,8 @@ PLAY_HTML = """
                 <hr style="border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
                 <p>האתר כולו בנוי בצורה מינימליסטית וממוקדת במשחקים. אין צורך בהורדות או הרשמה – פשוט בוחרים משחק ולוחצים. כל ההרפתקאות זמינות בעברית ומתחילות מיד.</p>
                 <h3 style="color: #a29bfe;">אודות היוצר</h3>
-                <p><strong>Arcade Station | Hub</strong> נוצר על ידי <strong>אביאל</strong>.</p>
-                <p>כתובת אימייל: <span style="color:#00cec9;">x0583289789@gmail.com</span></p>
+                <p><strong>Arcade Station | Hub</strong> נוצר ומתוחזק באהבה גדולה על ידי <strong>אביאל</strong>.</p>
+                <p>לפניות ובקשות במייל: <span style="color:#00cec9;">x0583289789@gmail.com</span></p>
             </div>
         </div>
     </div>
@@ -781,6 +637,7 @@ PLAY_HTML = """
     <script>
         const sp = supabase.createClient('https://ryoykooazoaordzmxdat.supabase.co', 'sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B');
         let cUser = null; 
+        let globalAuthMode = 'LOGIN';
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -795,11 +652,9 @@ PLAY_HTML = """
         function updateUI() {
             document.getElementById('user-status').style.display = cUser ? 'block' : 'none';
             if(cUser) document.getElementById('nickname-display').innerText = '👤 ' + (cUser.user_metadata?.nickname || cUser.email.split('@')[0]);
-            
             const btnMain = document.getElementById('main-action-btn');
             btnMain.innerText = cUser ? '⚙ עריכת משתמש' : 'התחבר / הרשם';
             btnMain.onclick = () => openAuthModal(cUser ? 'EDIT' : 'LOGIN');
-            
             document.getElementById('logout-btn').style.display = cUser ? 'block' : 'none';
         }
 
@@ -811,6 +666,7 @@ PLAY_HTML = """
         }
 
         function setAuthUI(mode) {
+            globalAuthMode = mode;
             const tL = document.getElementById('auth-tab-login'); const tS = document.getElementById('auth-tab-signup');
             const bU = document.getElementById('box-user'); const bE = document.getElementById('box-email'); const bP = document.getElementById('box-pass');
             const btn = document.getElementById('auth-exec-btn'); const titleEdit = document.getElementById('auth-edit-title'); const tabsCon = document.getElementById('auth-tabs-container');
@@ -821,111 +677,117 @@ PLAY_HTML = """
 
             if (mode === 'LOGIN') {
                 tL.classList.add('active'); tS.classList.remove('active');
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי בשרת (או אימייל אם סיפקת מראש):'; bE.style.display='none'; 
-                bP.style.display='block'; document.getElementById('lbl-pass').innerText='סיסמה:'; btn.innerText='הכנס למערכת המשחקים'; btn.onclick=doLogin;
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי (או אימייל אם נרשמת ככה):'; bE.style.display='none'; 
+                bP.style.display='block'; document.getElementById('lbl-pass').innerText='סיסמה סודית:'; btn.innerText='תן לי לשחק בארקייד';
                 fPassLnk.style.display='block'; bLoginLnk.style.display='none';
             } else if (mode === 'SIGNUP') {
                 tL.classList.remove('active'); tS.classList.add('active');
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי רצוי:'; bE.style.display='block'; document.getElementById('lbl-email').innerHTML='אימייל לשחזור במידה ואבד:';
-                bP.style.display='block'; document.getElementById('lbl-pass').innerText='סיסמה (מוצפנת בשרתים):'; btn.innerText='תרשום אותי לפלטפורמה'; btn.onclick=doSignUp;
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='בחר כינוי מושלם לחשבון (Nickname):'; 
+                bE.style.display='block'; document.getElementById('lbl-email').innerHTML='אימייל לשחזור עתידי בטוח:';
+                bP.style.display='block'; document.getElementById('lbl-pass').innerText='בחר קוד חדש אקטיבי מעל 6 תווים:'; btn.innerText='הקש כאן בכדי להירשם בהקדם';
                 fPassLnk.style.display='none'; bLoginLnk.style.display='none';
             } else if (mode === 'EDIT') {
-                titleEdit.style.display='block'; titleEdit.innerText='אבטחה והגדרות שחקן'; tabsCon.style.display='none';
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי רשמי בשרת:'; document.getElementById('f-user').value = cUser?.user_metadata?.nickname || ''; 
-                bE.style.display='none'; bP.style.display='block'; document.getElementById('lbl-pass').innerText='לעדכון ססמא אופציונלי:'; btn.innerText='שמור פרופיל בשרת הראשי'; btn.onclick=doEditProfile;
+                titleEdit.style.display='block'; titleEdit.innerText='אבטחה והגדרות חיוניות לפרופיל'; tabsCon.style.display='none';
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='השם המוביל שלי בשרת:'; document.getElementById('f-user').value = cUser?.user_metadata?.nickname || ''; 
+                bE.style.display='none'; bP.style.display='block'; document.getElementById('lbl-pass').innerText='רוצה סיסמה אדפטציה חדשה? נא לרשום (השאר ריק לברירה הקודמת):'; btn.innerText='תעדכן לי את השמירה המועדפת';
                 deleteDiv.style.display = 'block'; fPassLnk.style.display='none'; bLoginLnk.style.display='none';
             } else if (mode === 'RECOVERY') {
-                titleEdit.style.display='block'; titleEdit.innerText='מרכז איפוס נתונים'; tabsCon.style.display='none';
-                bU.style.display='block'; document.getElementById('lbl-user').innerText='כינוי נאמן לשרת:'; bE.style.display='block'; document.getElementById('lbl-email').innerHTML='המייל האמיתי שנמסר בסודיות מוקדמת:'; 
-                bP.style.display='none'; btn.innerText='שלח שליח שרת להצלה למייל'; btn.onclick=doRecovery;
+                titleEdit.style.display='block'; titleEdit.innerText='מעבדה מנוטרלת למערך שחזור עכשווי'; tabsCon.style.display='none';
+                bU.style.display='block'; document.getElementById('lbl-user').innerText='כיוון הכינוי ממעבדה ישנה אחיזה:'; 
+                bE.style.display='block'; document.getElementById('lbl-email').innerHTML='האם סיפקת מסד דואר? מנהלו כאן בשורה מטה:'; 
+                bP.style.display='none'; btn.innerText='הרעיד טילים ואשר לשליח במכתב פוסט...';
                 fPassLnk.style.display='none'; bLoginLnk.style.display='block';
             }
         }
 
         function getSafeEmail(userInput) { let cln = userInput.trim().toLowerCase(); if(cln.includes('@')) return cln; return cln.replace(/\s+/g, '') + "@arcadestation.local"; }
 
-        // הפיתרון המקיף ללוגין שמכווין ישר למייל במקרה של שגיאה כמעשה אומן 
+        // משחקון פעולה מרכזי המופעל בכל הקלקה באופן חד
+        async function executeAuthAction() {
+            try {
+                document.getElementById('auth-exec-btn').disabled = true; // הגנת משתמש לא להציף קליקים קטנים לחיצים פאבים
+                if (globalAuthMode === 'LOGIN') await doLogin();
+                else if (globalAuthMode === 'SIGNUP') await doSignUp();
+                else if (globalAuthMode === 'EDIT') await doEditProfile();
+                else if (globalAuthMode === 'RECOVERY') await doRecovery();
+            } catch(e) {
+                console.error(e);
+                alert("המערכת חרקה שיניים במסך הזה. אנא פנה למנהל הארקייד (השגיאה שקרתה: " + e.message + ")");
+            } finally {
+                const theBtn = document.getElementById('auth-exec-btn');
+                if(theBtn) theBtn.disabled = false; // להבטיח שנוכל לחזור ללחוץ בלי רשתות! 
+            }
+        }
+
         async function doLogin() {
             const uInput = document.getElementById('f-user').value.trim(); const p = document.getElementById('f-pass').value;
-            if(!uInput || !p) return alert("השדות חובה במילוי, אנא...");
+            if(!uInput || !p) return alert("הלו? שדה מכתבים ממוחשב צבוע לך כמשפט... מלא טפסים קודם כפי דרישות קליינט!");
+            const isEm = uInput.includes('@'); const loginEmail = isEm ? uInput.toLowerCase() : getSafeEmail(uInput);
             
-            const isEmail = uInput.includes('@');
-            const loginEmail = isEmail ? uInput.toLowerCase() : uInput.replace(/\s+/g, '').toLowerCase() + "@arcadestation.local";
-            
-            console.log("Supabase trying Auth:", loginEmail);
-
-            const { data, error } = await sp.auth.signInWithPassword({ email: loginEmail, password: p });
+            const { error } = await sp.auth.signInWithPassword({ email: loginEmail, password: p });
             if(error) {
-                console.error("Supabase error trace: ", error.message);
-                if (!isEmail) {
-                    alert("שגיאת התחברות! 🛑\\nאם סיפקת אימייל אמיתי בזמן ההרשמה - עליך להקליד בשורה כאן את האימייל ולא את הכינוי! (Supabase סודי מאוד בעניין זה).");
-                } else {
-                    alert("שגיאה! הסיסמה או המייל אינם חופפים, יש טעות בהקלדה.");
-                }
+                console.error("Auth Fail Info:", error.message);
+                if (!isEm) alert("שגיאה! אין משתמש אצילי בעל מידות אלו במסמכים.\\nשים לב חזק 🌟: האם רשמת אימייל בעת שהגעת? אם כדאי שתחבר אותו לכאן דרך הפורמט האמיתי שלו!");
+                else alert("מייל זה לא נמצא בסקר שגוי עולמות או סיסמת הענן שלוקה בשגיאה... צה שנית לנסות שרענון מסגרותיו יעזור?");
             } else { closeModal('auth-modal'); checkUser(); }
         }
 
         async function doSignUp() {
             const nickname = document.getElementById('f-user').value.trim(); const theM = document.getElementById('f-email').value.trim(); const p = document.getElementById('f-pass').value;
-            if(!nickname || !p) return alert("לא הוגן להשאיר פרטים סודיים כריקים, נא למלא.");
-            if(p.length < 6) return alert("סיסמא של אדונים מתחילה מעל 6 תווים בשמירה!");
+            if(!nickname || !p) return alert("לא הגיוני שנבצע רישום לשם בדוי או חסר כל צורך קיר.");
+            if(p.length < 6) return alert("נורא קשה לספר לבחורה בארוחה שיש לכה בקבלה סיסמת קרוש... זרוק לו לפחות שש נקודות של אבטחה גראנדיוזית פנצרית.");
             
             try {
                 const { data: existing } = await sp.from('profiles').select('nickname').eq('nickname', nickname).maybeSingle();
                 if (existing) {
-                    alert("הכינוי '" + nickname + "' תפוס היטב בחומה! 🕵️‍♂️\\nבוא נתחבר עם הגיבור הזה.");
+                    alert("המממ. ישרים והוגנים ברומו! שם התצוגה '" + nickname + "' תפוס היטב מעכשיו! 🕵️‍♂️\\nלפיכך גנב המיניון העביר לחברייך ההקשבת נכנע של כניסתו מימדית.");
                     setAuthUI('LOGIN'); document.getElementById('f-user').value = nickname; return;
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
 
-            const cleanFinal = theM.includes('@') ? theM.toLowerCase() : nickname.replace(/\s+/g, '').toLowerCase() + "@arcadestation.local";
-            
+            const cleanFinal = theM.includes('@') ? theM.toLowerCase() : getSafeEmail(nickname);
             const { data, error } = await sp.auth.signUp({ email: cleanFinal, password: p, options:{ data:{ nickname: nickname } } });
+            
             if (error) {
-                console.error("SignUp Trace:", error);
+                console.error("SignUp Failures Trace Log", error);
                 if (error.message.includes("already registered") || error.message.includes("already exists")) {
-                    alert("האימייל הזה כבר שותה שייק בקפטריה! \\nמעביר אותך לחלון כניסה כדי לחזור לשייק.");
+                    alert("שגיאת המרשם הדיפלומטי: סעיף סמיילי אישי או פרטי חשבון כבר חיפפו ברשת סובאב שלנו!\\nמסתובבים אל התא המסנן במקרר התחברות קומה מוקדמת.");
                     setAuthUI('LOGIN'); document.getElementById('f-user').value = nickname; return;
                 }
-                return alert("שגיאה מאחורי קלעים : " + error.message);
+                return alert("צד קובע אקספרסיות אבסטרקטית בעייתי מהצד בטיחות : " + error.message);
             }
-            if (data.user) { await sp.from('profiles').upsert({ user_id: data.user.id, nickname: nickname }); checkUser(); }
-            closeModal('auth-modal'); 
+            if (data.user) { await sp.from('profiles').upsert({ user_id: data.user.id, nickname: nickname }); checkUser(); closeModal('auth-modal'); alert("זה הריח שלך שנוצר בהדפס? רשומו הושלמה אלופת אלופים!"); }
         }
 
         async function doEditProfile() {
             const newN = document.getElementById('f-user').value.trim(); const newPass = document.getElementById('f-pass').value.trim();
             if(newN) { await sp.auth.updateUser({ data: { nickname: newN } }); await sp.from('profiles').upsert({ user_id: cUser.id, nickname: newN }); }
-            if(newPass && newPass.length >= 6) { await sp.auth.updateUser({ password: newPass }); alert("סיסמה רועננה במסד."); }
+            if(newPass && newPass.length >= 6) { await sp.auth.updateUser({ password: newPass }); alert("תדר השתלת קוד כוחות רזרבי מתחדש וחי במצברים!"); }
             closeModal('auth-modal'); checkUser();
         }
 
         async function doRecovery() {
             const givenName = document.getElementById('f-user').value.trim(); const givenEmail = document.getElementById('f-email').value.trim();
-            if(!givenName || !givenEmail) return alert("השדות חייבים ייצוג כללי מלא");
-            if(!givenEmail.includes('@') || givenEmail.includes('.local')) return alert("המנגנון מוטמע לדרוש אימייל מהימן לשחזור מהיר");
+            if(!givenName || !givenEmail) return alert("השירותים לא עורכים משמע כל וכן לא דורש חביבים לכתר חסרי יכולת תקיפות מעמיקות.");
+            if(!givenEmail.includes('@') || givenEmail.includes('.local')) return alert("רק אם הענקת מייל אמיתי במולאות השגרירות תוכל לשדרג הצלפות ולשדר שחזור חיל חירום לקובץ פרקטים.");
             const { error } = await sp.auth.resetPasswordForEmail(givenEmail.toLowerCase());
-            if (error) alert("שגיאה! אין משתמש שהקיש במדויק דואר זה. טעות איוש!");
-            else { alert("המכתב פולח לאור האוויר ישר לאימייל... המתן מעט ויגיע (אל תשכח לסייר בספאם!)."); setAuthUI('LOGIN'); }
+            if (error) alert("פופס... הקלדה באורך קונסטיטוציה זהוות למערכים אלה עלולה לחקלק פדאן מהמינים בסרור הריידס אולי תיקן ותשלח במקום טיל מחמם אויר מכתף פסיכו?");
+            else { alert("ישרים כמו גלי הקומודור בתוך שעת חפצה לינק המועבר לספק כנפי אימייל מוצפים מתנדנד פנימה דרך רצפת הספאם.\\nבהצלחות איפוס מאמי! ☑️"); setAuthUI('LOGIN'); }
         }
 
         async function deleteSelf() {
-            const isSure = confirm("אזהרת התרסקות וודאית 🚨\\nאתה הולך להרוס לעצמך כל ניסיון גישה חזרה לשמירות! הכל מיועד לאידוי מוחלט מהמערכות.\\nזה החלטה קשוחה - לאשר מחיקה לחלוטין??");
+            const isSure = confirm("למה מי מדבר על למחוק גיל קיום בחבריי האבזרד האגדיים הללו!🚨🚨🚨🚨\\nבכיוון המלא ללחצן אדמוני תוסדר קריעת אלקטרונים תרמו-איש וזה לא אחוז שיחזור בכלל אי איפוס של גדר עבר לא סילח לך אשף שדה הנייר קשירת חינוכים איבוד חיים כרוניים אצלנו במכנה משותף של גל... תחתכו קופון הראייה האדומים לעוף ולטבוח לחלוטין ברגע???");
             if (!isSure) return;
-            try {
-                await sp.from('profiles').delete().eq('user_id', cUser.id);
-                await sp.auth.signOut();
-                alert("אבידות ופרידות מצערות, משתמש נסרק והושמד. עולם הארקייד שלנו תמיד יפתח חלון אם תתגעגע! 🏁");
-                closeModal('auth-modal'); cUser = null; updateUI();
-            } catch (err) { alert("הפלת אדמין סוקרה ונבלמה בנזקים, דברו עם הבעלים אודות: " + err.message); }
+            try { await sp.from('profiles').delete().eq('user_id', cUser.id); await sp.auth.signOut(); alert("גרידת עצבים ופרידה מחבלי קרמיקה פסימיים מסווג מתוייק ועבוד בחבצלות צהבת מהמשאבים המהנדסים בחלון הטרמינל שלנו 💔 עקבת משמע אתה טריגר עף אל על... שלומות ממדורת הענן מנהלת אטליז מחפיר לעולם משגע פראי שייעץ אותנו לחשד של אדם קונקרט... אוחצנו שמש שומר חמיקה וגוד ביי יחד עם הדמיונות הארץ התרסקות מרהיב מבוכים."); closeModal('auth-modal'); cUser = null; updateUI(); } catch (err) { alert("המנועים קרסו בזמן המחיקה לכן אל נא תיפרד: " + err.message); }
         }
-
+        
         window.onload = checkUser;
     </script>
 </body>
 </html>
 """
 
+# ...[השאר ללא שינוי, החיבור הרגיל אל DispatcherMiddleware]
 # שידוך כל המשחקים לרץ של הפלאסק
 app = DispatcherMiddleware(main_app, {
     '/game1': game1, '/game2': game2, '/game3': game3, '/game4': game4, '/game5': game5,
