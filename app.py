@@ -25,7 +25,7 @@ def a(text):
       </head>
       <body>
         <div class="container">
-          <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
+          <div style="font-size: 60px; margin-bottom: 20px;">☹</div>
           <h1>{text}</h1>
           <p style="color: #b2bec3; margin-top: 15px;">המשחק עדיין בפיתוח תחת תחנת הארקייד... סבלנות!</p>
         </div>
