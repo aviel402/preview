@@ -560,7 +560,7 @@ PLAY_HTML = """
     </div>
 
     <script>
-        const spUrl = "URL_הפרויקט_שלך_כאן";
+        const spUrl = "https://ryoykooazoaordzmxdat.supabase.co";
         const spKey = "sb_publishable_bQDZZLDP-n51ur0jD5XNIg_iGDdsq5B";
         
         let sp = null;
