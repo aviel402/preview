@@ -80,7 +80,7 @@ def play_view(target):
     return render_template_string(PLAY_HTML, target=target)
 
 # =======================================================
-# MENU_HTML (המרכזייה הראשי)
+# MENU_HTML (האתר הראשי)
 # =======================================================
 MENU_HTML = """
 <!DOCTYPE html>
@@ -204,7 +204,7 @@ MENU_HTML = """
                         <a href="/play/game11">Manager PRO 📊</a>
                     </div>
                 </div>
-                <a onclick="alert('מודול טבלאות דירוג יתווסף בהמשך הפיתוח! 🥇')">טבלאות דירוג</a>
+                <a onclick="alert('מודול טבלאות דירוג ציבוריות יתווסף בהמשך הפיתוח! 🥇')">טבלאות דירוג</a>
                 <a onclick="openModal('about-modal')">אודות</a>
             </div>
         </div>
@@ -252,11 +252,11 @@ MENU_HTML = """
                 <input type="email" id="f-email" class="input-box" placeholder="כתובת אימייל לדוגמה...">
             </div>
             <div class="form-group" id="box-user" style="display:none;">
-                <label id="lbl-user">בחר כינוי לתצוגה במשחק:</label>
-                <input type="text" id="f-user" class="input-box" placeholder="למשל: סופרמן55">
+                <label id="lbl-user">בחר כינוי לתצוגה במערכת:</label>
+                <input type="text" id="f-user" class="input-box" placeholder="למשל: Player123">
             </div>
             <div class="form-group" id="box-color" style="display:none;">
-                <label>צבע הפרופיל שלך:</label>
+                <label>בחר צבע עבור הפרופיל שלך:</label>
                 <input type="color" id="f-color" class="input-box" value="#00cec9">
             </div>
             <div class="form-group" id="box-pass">
@@ -277,12 +277,13 @@ MENU_HTML = """
         </div>
     </div>
 
+    <!-- מודל אודות -->
     <div id="about-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'about-modal')">
         <div class="modal-content about-modal-content">
             <button class="modal-close" onclick="closeModal('about-modal')">✖</button>
             <h2 style="color: #00cec9;">אודות Arcade Station</h2>
             <div style="text-align: right; color: #fff; font-size: 1.05rem;">
-                <p>מערכת ארקייד המספקת משחקי דפדפן מהנים מז'אנרים שונים. אין צורך להוריד כלום!</p>
+                <p>מערכת ארקייד המספקת משחקי דפדפן מהנים מז'אנרים שונים. שחקו באופן חופשי ללא צורך בהורדה!</p>
                 <h3 style="color: #a29bfe; margin-top:10px;">אודות היוצר</h3>
                 <p>האתר נוצר ופותח על ידי <strong>אביאל</strong>.<br>כתובת אימייל ליצירת קשר: <span style="color:#00cec9;">x0583289789@gmail.com</span></p>
             </div>
@@ -294,12 +295,37 @@ MENU_HTML = """
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('feedback-modal')">✖</button>
             <h2 style="margin-bottom:20px;">שליחת משוב להנהלה</h2>
-            <div class="form-group"><label>נושא הפנייה:</label><select id="fb-topic" class="input-box" onchange="document.getElementById('fb-text-box').style.display=this.value?'block':'none'"><option value="" disabled selected>-- בחר --</option><option value="bug">תקלה או בעיה במשחק (Bug)</option><option value="idea">הצעה או רעיון לשדרוג</option><option value="other">פנייה אחרת למנהל</option></select></div>
-            <div class="form-group hidden-group" id="fb-text-box"><label>נא לפרט כאן את תוכן הפנייה:</label><textarea id="fb-text" rows="5" class="input-box"></textarea><button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="submitFeedback()">שלח משוב 🚀</button></div>
+            <div class="form-group">
+                <label>נושא הפנייה:</label>
+                <select id="fb-topic" class="input-box" onchange="document.getElementById('fb-game-box').style.display=this.value?'block':'none'">
+                    <option value="" disabled selected>-- בחר --</option>
+                    <option value="bug">תקלה או בעיה (Bug)</option>
+                    <option value="idea">הצעה או רעיון לשדרוג</option>
+                    <option value="other">פנייה אחרת למנהל</option>
+                </select>
+            </div>
+            <div class="form-group hidden-group" id="fb-game-box">
+                <label>לגבי איזה משחק / מסך פנית?</label>
+                <select id="fb-game" class="input-box" onchange="document.getElementById('fb-text-box').style.display=this.value?'block':'none'">
+                    <option value="" disabled selected>-- בחר מיקום רלוונטי --</option>
+                    <option value="המסך הראשי של האתר">המסך הראשי</option>
+                    <option value="הישרדות">הישרדות</option><option value="Gold Forest">Gold Forest</option>
+                    <option value="Genesis">Genesis</option><option value="קוד אדום">קוד אדום</option>
+                    <option value="IRON LEGION">IRON LEGION</option><option value="מבוך הצללים">מבוך הצללים</option>
+                    <option value="PROXIMA">PROXIMA</option><option value="הטפיל">הטפיל</option>
+                    <option value="CLOVER">CLOVER</option><option value="NEON RIDER">NEON RIDER</option>
+                    <option value="Manager PRO">Manager PRO</option>
+                </select>
+            </div>
+            <div class="form-group hidden-group" id="fb-text-box">
+                <label>נא לפרט כאן את תוכן הפנייה בצורה ברורה:</label>
+                <textarea id="fb-text" rows="5" class="input-box"></textarea>
+                <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="submitFeedback()">שלח משוב 🚀</button>
+            </div>
         </div>
     </div>
 
-    <!-- פאנל ניהול אדמין מתקדם -->
+    <!-- פאנל ניהול אדמין מתקדם (עם הוספת מחיקת משובים) -->
     <div id="admin-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'admin-modal')">
         <div class="modal-content admin-modal">
             <button class="modal-close" onclick="closeModal('admin-modal')">✖</button>
@@ -308,7 +334,6 @@ MENU_HTML = """
                 <button class="admin-tab active" id="tab-users-btn" onclick="switchAdminTab('users')">ניהול שחקנים רשומים 👥</button>
                 <button class="admin-tab" id="tab-feedbacks-btn" onclick="switchAdminTab('feedbacks')">תיבת משובים ופניות 📥</button>
             </div>
-            
             <div id="section-users" class="admin-section active"><div class="user-list" id="admin-user-list"></div></div>
             <div id="section-feedbacks" class="admin-section"><div class="feedback-list" id="admin-feedback-list"></div></div>
         </div>
@@ -352,9 +377,9 @@ MENU_HTML = """
                 try {
                     const { data: dbProfile } = await sp.from('profiles').select('*').eq('user_id', cUser.id).maybeSingle();
                     if(dbProfile) {
-                        if(dbProfile.banned) { alert("🚨 המשתמש שלך נחסם לצמיתות משרתי האתר."); await logout(); return; }
+                        if(dbProfile.banned) { alert("🚨 המשתמש שלך נחסם לצמיתות משרתי האתר עקב עבירת אבטחה."); await logout(); return; }
                         if(dbProfile.message) { 
-                            alert("💌 הודעה ממנהל האתר:\n" + dbProfile.message); 
+                            alert("💌 הודעה ממנהל האתר:\n\n" + dbProfile.message); 
                             await sp.from('profiles').update({ message: null }).eq('user_id', cUser.id);
                         }
                         cUser.customColor = dbProfile.color || '#00cec9'; 
@@ -467,7 +492,7 @@ MENU_HTML = """
             if (error) return showError(error.message.includes('already') ? "כתובת אימייל זו כבר רשומה במערכת! אנא התחבר בטופס הרגיל." : "אירעה שגיאה: " + error.message);
             if (data.user) { 
                 await sp.from('profiles').upsert({ user_id: data.user.id, nickname: nickname, color: clr, banned: false, message: null }); 
-                await checkUser(); alert("ההרשמה בוצעה בהצלחה! מתחבר למערכת..."); closeModal('auth-modal'); 
+                await checkUser(); alert("ההרשמה בוצעה בהצלחה! מברכים אותך בהצטרפות לארקייד."); closeModal('auth-modal'); 
             }
         }
 
@@ -488,21 +513,26 @@ MENU_HTML = """
 
         async function deleteSelf() {
             if (!confirm("אזהרה! האם אתה בטוח שברצונך למחוק את חשבונך לצמיתות? פעולה זו תמחוק את כל הנתונים ולא ניתנת לביטול.")) return;
-            try { await sp.from('profiles').delete().eq('user_id', cUser.id); await sp.auth.signOut(); alert("החשבון נמחק לחלוטין. להתראות!"); closeModal('auth-modal'); cUser = null; updateUI(); } catch (err) { alert(err.message); }
+            try { await sp.from('profiles').delete().eq('user_id', cUser.id); await sp.auth.signOut(); alert("החשבון נמחק לחלוטין משרתי האתר."); closeModal('auth-modal'); cUser = null; updateUI(); } catch (err) { alert(err.message); }
         }
 
         /* משוב */
         async function submitFeedback() { 
-            const t = document.getElementById('fb-topic').value; const tx = document.getElementById('fb-text').value; if(!tx || !t) return; 
+            const t = document.getElementById('fb-topic').value; 
+            const gameRel = document.getElementById('fb-game').value; 
+            const tx = document.getElementById('fb-text').value; 
+            if(!tx || !t || !gameRel) { alert('אנא בחר נושא, משחק ופרט על הפנייה!'); return; }
+            
             try { 
-                const {error} = await sp.from('feedbacks').insert({ user_email: cUser ? cUser.email : 'משתמש לא מחובר', topic: t, text: tx }); 
+                const {error} = await sp.from('feedbacks').insert({ user_email: cUser ? cUser.email : 'משתמש לא מחובר', topic: t, game: gameRel, text: tx }); 
                 if(error) throw error;
-                alert('המשוב נשלח בהצלחה למנהל המערכת. תודה!'); 
-            } catch (err) { alert("אירעה שגיאה בשליחת המשוב (בדוק Policies ב-Supabase)."); } 
-            closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-text').value=''; document.getElementById('fb-text-box').style.display='none'; 
+                alert('המשוב נשלח בהצלחה למנהל המערכת. תודה שפנית אלינו!'); 
+            } catch (err) { alert("אירעה שגיאה בשליחת המשוב, וודא הגדרות במסד נתונים."); } 
+            closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-game').value=''; document.getElementById('fb-text').value=''; 
+            document.getElementById('fb-text-box').style.display='none'; document.getElementById('fb-game-box').style.display='none';
         }
 
-        /* אדמין חזק + מחיקת תגובות! */
+        /* אדמין + מחיקת תגובות */
         async function loadAdminData() {
             if(!sp) return;
             const uList = document.getElementById('admin-user-list'); const fList = document.getElementById('admin-feedback-list');
@@ -517,38 +547,38 @@ MENU_HTML = """
                         <div style="flex-grow:1; margin-right:15px;">
                             <strong style="color:${u.color || '#00cec9'}; font-size:1.2rem;">${u.nickname}</strong>
                             <div style="font-size:0.8rem; color:#777; font-family:monospace;">ID: ${u.user_id}</div>
-                            ${u.banned ? '<span style="display:inline-block; margin-top:3px; background:rgba(255,0,0,0.2); padding:1px 6px; border-radius:5px; font-size:0.75rem; color:#ff4757;">🚫 סטאטוס חסום מהשרת</span>' : '<span style="display:inline-block; margin-top:3px; background:rgba(0,255,0,0.1); padding:1px 6px; border-radius:5px; font-size:0.75rem; color:#2ecc71;">✅ סטאטוס מאושר ופעיל</span>'}
+                            ${u.banned ? '<span style="display:inline-block; margin-top:3px; background:rgba(255,0,0,0.2); padding:1px 6px; border-radius:5px; font-size:0.75rem; color:#ff4757;">🚫 סטאטוס: חסום גישה לאתר</span>' : '<span style="display:inline-block; margin-top:3px; background:rgba(0,255,0,0.1); padding:1px 6px; border-radius:5px; font-size:0.75rem; color:#2ecc71;">✅ סטאטוס: מאושר ופעיל</span>'}
                         </div>
                         <div style="display:flex; flex-direction:column; gap:5px; justify-content:center;">
                             <button class="btn-action-small" onclick="adminSendMsg('${u.user_id}')" style="color:#0984e3; border-color:#0984e3;">💌 שליחת הודעה לשחקן</button>
-                            <button class="btn-action-small" onclick="adminToggleBan('${u.user_id}', ${u.banned})" style="color:#e1b12c; border-color:#e1b12c;">${u.banned ? '🟢 הסר חסימה ואישור גישה' : '🚫 הגדר כחסום לאתר'}</button>
-                            <button class="btn-action-small" onclick="adminDelUser('${u.user_id}')" style="color:#ff4757; border-color:#ff4757;">🗑️ מחיקת השחקן מהמערכת</button>
+                            <button class="btn-action-small" onclick="adminToggleBan('${u.user_id}', ${u.banned})" style="color:#e1b12c; border-color:#e1b12c;">${u.banned ? '🟢 הסר חסימה (אישור גישה)' : '🚫 הגדר כחסום לאתר (Banned)'}</button>
+                            <button class="btn-action-small" onclick="adminDelUser('${u.user_id}')" style="color:#ff4757; border-color:#ff4757;">🗑️ מחק את השחקן ממסד הנתונים</button>
                         </div>
                     </div>
                     `).join('');
-                } else uList.innerHTML = '<p style="color:#a4b0be; text-align:center;">אין שחקנים רשומים במערכת.</p>';
+                } else uList.innerHTML = '<p style="color:#a4b0be; text-align:center;">אין שחקנים רשומים במערכת להציג.</p>';
                 
                 const { data: fListDb, error: fError } = await sp.from('feedbacks').select('*');
                 if(fError) throw fError;
                 if (fListDb && fListDb.length > 0) {
                     fList.innerHTML = fListDb.map(x => `
                     <div class="feedback-row">
-                        <span style="color:var(--primary); font-size:1rem; font-weight:bold;">נושא הפנייה: ${x.topic}</span>
-                        <div style="padding:10px; background:rgba(0,0,0,0.5); border-radius:5px; font-size:0.95rem; margin-top:8px; margin-bottom:12px;">"${x.text}"</div>
+                        <span style="color:var(--primary); font-size:1.05rem; font-weight:bold;">הפנייה לגבי: ${x.game || 'כללי'} (סוג: ${x.topic})</span>
+                        <div style="padding:10px; background:rgba(0,0,0,0.5); border-radius:5px; font-size:0.95rem; margin-top:8px; margin-bottom:12px; color: #fff;">"${x.text}"</div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div style="color:#a4b0be; font-size:0.8rem; display:flex; flex-direction:column; gap:2px;">
-                                <span>מאת אימייל: <b>${x.user_email}</b></span>
-                                <span>תאריך: ${(x.created_at ? new Date(x.created_at).toLocaleDateString() : 'לא ידוע')}</span>
+                                <span>מאת כתובת האימייל: <b>${x.user_email}</b></span>
+                                <span>התקבל בתאריך: ${(x.created_at ? new Date(x.created_at).toLocaleDateString() : 'לא ידוע')}</span>
                             </div>
-                            <button class="btn-action-small" onclick="adminDelFeedback('${x.id}')" style="color:#ff4757; border-color:#ff4757; padding: 4px 10px; border-radius:15px;">🗑️ מחק פנייה זו</button>
+                            <button class="btn-action-small" onclick="adminDelFeedback('${x.id}')" style="color:#ff4757; border-color:#ff4757; padding: 5px 12px; border-radius:15px; font-weight:bold;">🗑️ מחק פנייה זו</button>
                         </div>
                     </div>
                     `).join('');
-                } else fList.innerHTML = '<p style="color:#a4b0be; text-align:center;">אין משובים להציג. תיבת הדואר ריקה.</p>';
+                } else fList.innerHTML = '<p style="color:#a4b0be; text-align:center;">תיבת הפניות והמשובים ריקה כרגע.</p>';
                 
             } catch(e) { 
-                console.error("שגיאה במערכת הניהול:", e.message);
-                uList.innerHTML = `<p style="color:#ff4757; text-align:center;">שגיאה בסנכרון נתונים: ${e.message}<br>וודא הגדרות פוליסות Policy בSupabase.</p>`; 
+                console.error("שגיאה בפאנל המנהל:", e.message);
+                uList.innerHTML = `<p style="color:#ff4757; text-align:center;">קרתה שגיאה במשיכת נתונים: ${e.message}</p>`; 
                 fList.innerHTML = uList.innerHTML; 
             }
         }
@@ -557,33 +587,35 @@ MENU_HTML = """
         function switchAdminTab(t) { document.getElementById('tab-users-btn').classList.toggle('active', t === 'users'); document.getElementById('tab-feedbacks-btn').classList.toggle('active', t === 'feedbacks'); document.getElementById('section-users').classList.toggle('active', t === 'users'); document.getElementById('section-feedbacks').classList.toggle('active', t === 'feedbacks'); }
         
         async function adminSendMsg(uid) {
-            let theM = prompt("הזן הודעה אישית שתשלח מיד ותוצג למשתמש במסך:");
-            if(theM) { await sp.from('profiles').update({ message: theM }).eq('user_id', uid); alert("ההודעה נשמרה ונשלחה לשחקן!"); loadAdminData();}
+            let theM = prompt("נא להזין הודעה שתקפוץ לשחקן במסך הראשי בפעם הבאה שיתחבר:");
+            if(theM) { await sp.from('profiles').update({ message: theM }).eq('user_id', uid); alert("הודעתך נרשמה ותוצג למשתמש כשיכנס."); loadAdminData();}
         }
         async function adminToggleBan(uid, wasBanned) {
-            if(confirm("האם אתה בטוח שברצונך לשנות את סטטוס החסימה של שחקן זה?")) {
+            if(confirm("האם לאשר שינוי סטאטוס חסימה (Banned) לשחקן?")) {
                 await sp.from('profiles').update({ banned: !wasBanned }).eq('user_id', uid); alert("סטטוס השחקן עודכן בהצלחה."); loadAdminData();
             }
         }
         async function adminDelUser(uid) {
-            if(confirm("האם למחוק משתמש זה לחלוטין משרתי האתר? פעולה זו מוחקת נתונים לתמיד ובלתי הפיכה!")) {
-                await sp.from('profiles').delete().eq('user_id', uid); alert("המשתמש נמחק באופן סופי ממאגר הנתונים."); loadAdminData();
+            if(confirm("מחיקת שחקן היא תהליך בלתי הפיך שימחק את כל היסטוריית הפרופיל שלו בשרת. להמשיך?")) {
+                await sp.from('profiles').delete().eq('user_id', uid); alert("שחקן נמחק סופית מהמערכת."); loadAdminData();
             }
         }
         async function adminDelFeedback(fid) {
-            if(confirm("האם אתה בטוח שברצונך למחוק תגובה/משוב זה מרשימת המנהל?")) {
-                await sp.from('feedbacks').delete().eq('id', fid); alert("המשוב נמחק לצמיתות."); loadAdminData();
+            if(confirm("למחוק לצמיתות את תגובה זו מרשימת המשובים? לא יהיה ניתן לשחזר אותה!")) {
+                await sp.from('feedbacks').delete().eq('id', fid); alert("התגובה נמחקה."); loadAdminData();
             }
         }
 
-        // ביצוע מיידי! פותר את ההמתנה הארוכה למשחקים
-        checkUser(); 
+        window.onload = checkUser;
     </script>
 </body>
 </html>
 """
 
-# שידוך כל המשחקים לרץ של הפלאסק
+# =======================================================
+# PLAY_HTML END - המשך ריצת שרתי ה-FLASK הסטנדרטים:
+# =======================================================
+
 app = DispatcherMiddleware(main_app, {
     '/game1': game1, '/game2': game2, '/game3': game3, '/game4': game4, '/game5': game5,
     '/game6': game6, '/game7': game7, '/game8': game8, '/game9': game9, '/game9/x=v':game9,
