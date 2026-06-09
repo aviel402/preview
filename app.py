@@ -115,7 +115,7 @@ zzz = '''
         </div>
     </nav>
     
-    <iframe src="/game1" title="Game"></iframe>
+    <iframe src="https://rubybot.co.il/he/features/art" title="Game"></iframe>
 
     <div id="auth-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'auth-modal')">
         <div class="modal-content">
