@@ -4,7 +4,7 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
 # =======================================================
-# אפליקציות דמה למשחקים השונים
+# אפליקציות דמה (Dummy) למשחקים שעדיין לא קיימים
 # =======================================================
 def create_dummy_app(text):
     dummy = Flask(__name__)
@@ -34,6 +34,7 @@ def create_dummy_app(text):
         '''
     return dummy
 
+# --- ניסיון ייבוא המשחקים האמיתיים מתוך תיקיות המערכת ---
 try: from app1 import app as game1
 except ImportError: game1 = create_dummy_app("הישרדות 🏝️")
 try: from app2 import app as game2
@@ -67,7 +68,8 @@ def verification_app():
     def index(): return 'google-site-verification: googlebf5e9f4bd69d6b9a.html'
     return v
 
-main_app = Flask(__name__, static_folder='static') # הוגדר כדי לשרת אוטומטית מתיקיית static
+# הפעלת אפליקציית הבית (Hub), עם הגדרת התיקייה static למשיכת לוגו, תמונות וקבצי css חיצוניים (אם יש)
+main_app = Flask(__name__, static_folder='static')
 
 def render_page(content, **kwargs):
     html = BASE_HTML.replace('<!-- CONTENT_BLOCK -->', content)
@@ -82,7 +84,7 @@ def play_view(target):
     return render_page(PLAY_CONTENT, target=target)
 
 # =======================================================
-# תבנית בסיס (BASE_HTML) - עיצוב סייברפאנק / ארקייד חדש!
+# תבנית בסיס לכל הדפים (BASE_HTML) - סייברפאנק וניהול המערכת
 # =======================================================
 BASE_HTML = """
 <!DOCTYPE html>
@@ -97,27 +99,27 @@ BASE_HTML = """
     <style>
         /* Neon Cyberpunk Theme */
         :root { 
-            --primary: #c501e2;       /* Neon Pink/Magenta */
-            --accent: #66fcf1;        /* Cyber Cyan */
-            --accent-dark: #45a29e;   /* Darker Cyan */
-            --bg-dark: #0b0c10;       /* Very Dark Navy/Black */
-            --card-bg: #1f2833;       /* Blueish Grey for cards */
-            --text-main: #ffffff;     /* Bright White */
-            --text-sub: #c5c6c7;      /* Grey/Silver */
-            --danger: #ff0055;        /* Neon Red */
+            --primary: #c501e2;       
+            --accent: #66fcf1;        
+            --accent-dark: #45a29e;   
+            --bg-dark: #0b0c10;       
+            --card-bg: #1f2833;       
+            --text-main: #ffffff;     
+            --text-sub: #c5c6c7;      
+            --danger: #ff0055;        
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; display: flex; flex-direction: column; overflow: hidden; background-color: var(--bg-dark); color: var(--text-main); font-family: 'Heebo', sans-serif; }
         
-        /* Grid Animated Background */
+        /* רקע דינמי של רשת זוהרת */
         .bg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
             background: linear-gradient(rgba(11, 12, 16, 0.9), rgba(11, 12, 16, 0.9)), 
                         repeating-linear-gradient(transparent, transparent 40px, rgba(102, 252, 241, 0.05) 40px, rgba(102, 252, 241, 0.05) 41px),
                         repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(102, 252, 241, 0.05) 40px, rgba(102, 252, 241, 0.05) 41px);
         }
 
-        /* Navbar - Glass/Neon effect */
+        /* Navbar */
         nav { height: 75px; flex-shrink: 0; background: rgba(11, 12, 16, 0.85); border-bottom: 2px solid rgba(102, 252, 241, 0.3); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 1000; position:relative; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8); }
         .nav-right-area { display: flex; align-items: center; gap: 40px; }
         
@@ -130,7 +132,6 @@ BASE_HTML = """
         .top-links a { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; transition: 0.3s; cursor:pointer; text-transform: uppercase;}
         .top-links a:hover { color: var(--accent); text-shadow: 0 0 8px var(--accent); }
         
-        /* Dropdown Setup */
         .dropdown { position: relative; display: inline-block; }
         .dropdown-content { display: none; position: absolute; background: rgba(31, 40, 51, 0.95); min-width: 240px; border: 1px solid var(--accent); box-shadow: 0 10px 40px rgba(102, 252, 241, 0.2); border-radius: 8px; top: 120%; right: -20px; padding: 10px 0; max-height: 450px; overflow-y: auto; text-align:right; z-index:999;}
         .dropdown:hover .dropdown-content { display: block; animation: fadeUp 0.3s ease; }
@@ -142,7 +143,6 @@ BASE_HTML = """
         .nav-left-area { display: flex; gap: 15px; align-items: center; }
         .user-pill { background: rgba(11, 12, 16, 0.8); border: 2px solid; color: #fff; padding: 6px 20px; border-radius: 5px; font-weight: 900; display: none; transition: 0.3s; text-shadow: 0 0 5px rgba(255,255,255,0.5);}
         
-        /* Buttons */
         .btn { border: none; padding: 10px 24px; border-radius: 4px; font-weight: 900; cursor: pointer; transition: all 0.3s; font-family:'Heebo'; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;}
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-primary { background: transparent; color: var(--accent); border: 2px solid var(--accent); box-shadow: inset 0 0 10px rgba(102,252,241,0.2), 0 0 10px rgba(102,252,241,0.2); }
@@ -154,12 +154,11 @@ BASE_HTML = """
         .btn-action-small { background: rgba(31,40,51,0.8); border:1px solid; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; font-weight: bold;}
         .btn-action-small:hover { filter: brightness(1.5); }
 
-        /* Structure */
         .content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1;}
         .scroll-content { overflow-y: auto; width: 100%; height: 100%; padding-bottom: 80px;}
         .iframe-content { width: 100%; height: 100%; border: none; }
 
-        /* Modals Cyberpunk Style */
+        /* חלונות צצים - Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 12, 16, 0.9); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content { background: var(--card-bg); border: 1px solid var(--accent); padding: 40px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 0 30px rgba(102, 252, 241, 0.15); position: relative; text-align: right; max-height:90vh; overflow-y:auto; }
@@ -238,7 +237,7 @@ BASE_HTML = """
         <!-- CONTENT_BLOCK -->
     </div>
 
-    <!-- מודל התחברות / הרשמה / עריכה -->
+    <!-- מודל מערכת התחברות -->
     <div id="auth-modal" class="modal-overlay" onclick="closeOnBgClick(event, 'auth-modal')">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('auth-modal')">✖</button>
@@ -339,7 +338,7 @@ BASE_HTML = """
         let cUser = null; 
         let globalAuthMode = 'LOGIN';
 
-        // הגנת XSS
+        // מניעת הזרקת קוד (XSS)
         function escapeHTML(str) {
             if (!str) return '';
             const div = document.createElement('div');
@@ -370,7 +369,25 @@ BASE_HTML = """
             
             if(cUser) {
                 try {
-                    const { data: dbProfile } = await sp.from('profiles').select('*').eq('user_id', cUser.id).maybeSingle();
+                    let { data: dbProfile } = await sp.from('profiles').select('*').eq('user_id', cUser.id).maybeSingle();
+                    
+                    // מנגנון התיקון - במידה ונוצרת בעיה במערכת ההרשמה בעבר והיוזר לא בטבלה
+                    if (!dbProfile) {
+                        console.log("System DB repair: Injecting missing profile record...");
+                        const fallbackNick = cUser.user_metadata?.nickname || cUser.email.split('@')[0];
+                        const fallbackColor = cUser.user_metadata?.color || '#66fcf1';
+                        const { error: insertErr } = await sp.from('profiles').insert({ 
+                            user_id: cUser.id, nickname: fallbackNick, color: fallbackColor, banned: false 
+                        });
+                        
+                        if(!insertErr) {
+                            const res = await sp.from('profiles').select('*').eq('user_id', cUser.id).maybeSingle();
+                            dbProfile = res.data;
+                        } else {
+                            console.error("DB Inject Error (Check RLS Policies):", insertErr);
+                        }
+                    }
+
                     if(dbProfile) {
                         if(dbProfile.banned) { 
                             alert("❌ החשבון הוגדר כחסום. מנתק תקשורת..."); 
@@ -512,14 +529,12 @@ BASE_HTML = """
             
             if(newN) { 
                 await sp.auth.updateUser({ data: { nickname: newN, color: newC } }); 
-                // שינוי קריטי: מעבר מ-upsert ל-update מפורש ו-eq כדי להבטיח שהנתון יישמר 
-                const {error} = await sp.from('profiles').update({ nickname: newN, color: newC }).eq('user_id', cUser.id);
-                if(error) console.warn("אזהרת DB בשמירת צבע:", error);
+                await sp.from('profiles').update({ nickname: newN, color: newC }).eq('user_id', cUser.id);
             }
             if(newPass && newPass.length >= 6) { await sp.auth.updateUser({ password: newPass }); }
             
             closeModal('auth-modal'); 
-            await checkUser(); // מרפרש את הצבע לויזואל
+            await checkUser(); 
             alert("תצורת פרופיל עודכנה בהצלחה!");
         }
 
@@ -548,7 +563,7 @@ BASE_HTML = """
                 if(error) throw error;
                 alert('התשדורת נקלטה במאגרי המערכת המרכזית. תודה!'); 
                 closeModal('feedback-modal'); document.getElementById('fb-topic').value=''; document.getElementById('fb-text').value=''; document.getElementById('fb-text-box').style.display='none';
-            } catch (err) { alert("DB REJECTED: ודא שמדיניות האבטחה (RLS) של הטבלה מתירה הוספה (INSERT). " + err.message); } 
+            } catch (err) { alert("DB REJECTED: " + err.message); } 
         }
 
         // ---------- אדמין פאנל ----------
@@ -596,18 +611,12 @@ BASE_HTML = """
         async function adminSendMsg(uid) { let msg = prompt("INJECT MESSAGE:"); if(msg) { await sp.from('profiles').update({ message: msg }).eq('user_id', uid); loadAdminData(); } }
         async function adminToggleBan(uid, wasBanned) { if(confirm(wasBanned ? "GRANT ACCESS?" : "RESTRICT USER ACCESS?")) { await sp.from('profiles').update({ banned: !wasBanned }).eq('user_id', uid); loadAdminData(); } }
         async function adminDelUser(uid) { if(confirm("PERMANENTLY DESTROY USER RECORD?")) { await sp.from('profiles').delete().eq('user_id', uid); loadAdminData(); } }
-        
         async function adminDelFeedback(fid) {
             if(!confirm("האם למחוק נתונים אלו? הפעולה בלתי הפיכה.")) return;
             try {
-                // הבטחה שהקריאה רצה ושומרת שגיאות כדי שנדע מה קרה באמת אם נכשל
                 const { error } = await sp.from('feedbacks').delete().eq('id', fid);
-                if(error) {
-                    console.error("Delete Error:", error);
-                    alert("פעולת המחיקה נחסמה! הודעת השרת: " + error.message + "\\n(וודא ש-RLS מאפשר מחיקה או שמזהה הטבלה 'id' תואם לחוקים).");
-                    return;
-                }
-                loadAdminData(); // טוען מחדש מיד אחרי הצלחה
+                if(error) { console.error(error); alert("מחיקה נדחתה. ודא RLS. " + error.message); return; }
+                loadAdminData(); 
             } catch (err) { alert("ERROR FETCH: " + err.message); }
         }
 
@@ -618,7 +627,7 @@ BASE_HTML = """
 """
 
 # =======================================================
-# תפריט ראשי
+# תפריט ראשי המוזרק לבסיס (תצוגת המשחקים - Hub)
 # =======================================================
 MENU_CONTENT = """
 <style>
@@ -672,12 +681,15 @@ MENU_CONTENT = """
 </div>
 """
 
+# =======================================================
+# תוכן דף הנגן (IFrame)
+# =======================================================
 PLAY_CONTENT = """
 <iframe class="iframe-content" src="/{{target}}" title="Game"></iframe>
 """
 
 # =======================================================
-# חיבור מודולים מלא
+# הפעלת כל המשחקים באותו שרת (Routing)
 # =======================================================
 app = DispatcherMiddleware(main_app, {
     '/game1': game1, '/game2': game2, '/game3': game3, '/game4': game4, '/game5': game5,
