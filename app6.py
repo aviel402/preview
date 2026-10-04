@@ -3,69 +3,81 @@ import uuid
 from flask import Flask, render_template_string, request, jsonify, session, url_for
 
 app = Flask(__name__)
-app.secret_key = 'pokemon_master_secret_key_v1'
+app.secret_key = 'pokemon_master_secret_key_v2'
 
 # ==========================================
-# 📘 יחסי סוגים (TYPE MATCHUPS)
+# 📘 FULL 18-TYPE MATCHUP CHART
 # ==========================================
 TYPE_CHART = {
-    "אש":    {"עשב": 2.0, "מים": 0.5, "אש": 0.5},
-    "מים":   {"אש": 2.0, "עשב": 0.5, "מים": 0.5},
-    "עשב":  {"מים": 2.0, "אש": 0.5, "עשב": 0.5},
-    "חשמל": {"מים": 2.0, "עשב": 0.5, "חשמל": 0.5},
-    "רגיל":  {}
+    "Normal":   {"Rock": 0.5, "Ghost": 0.0, "Steel": 0.5},
+    "Fire":     {"Fire": 0.5, "Water": 0.5, "Grass": 2.0, "Ice": 2.0, "Bug": 2.0, "Rock": 0.5, "Dragon": 0.5, "Steel": 2.0},
+    "Water":    {"Fire": 2.0, "Water": 0.5, "Grass": 0.5, "Ground": 2.0, "Rock": 2.0, "Dragon": 0.5},
+    "Grass":    {"Fire": 0.5, "Water": 2.0, "Grass": 0.5, "Poison": 0.5, "Ground": 2.0, "Flying": 0.5, "Bug": 0.5, "Rock": 2.0, "Dragon": 0.5, "Steel": 0.5},
+    "Electric": {"Water": 2.0, "Grass": 0.5, "Electric": 0.5, "Ground": 0.0, "Flying": 2.0, "Dragon": 0.5},
+    "Ice":      {"Fire": 0.5, "Water": 0.5, "Grass": 2.0, "Ice": 0.5, "Ground": 2.0, "Flying": 2.0, "Dragon": 2.0, "Steel": 0.5},
+    "Fighting": {"Normal": 2.0, "Ice": 2.0, "Poison": 0.5, "Flying": 0.5, "Psychic": 0.5, "Bug": 0.5, "Rock": 2.0, "Ghost": 0.0, "Dark": 2.0, "Steel": 2.0, "Fairy": 0.5},
+    "Poison":   {"Grass": 2.0, "Poison": 0.5, "Ground": 0.5, "Rock": 0.5, "Ghost": 0.5, "Steel": 0.0, "Fairy": 2.0},
+    "Ground":   {"Fire": 2.0, "Grass": 0.5, "Electric": 2.0, "Poison": 2.0, "Flying": 0.0, "Bug": 0.5, "Rock": 2.0, "Steel": 2.0},
+    "Flying":   {"Grass": 2.0, "Electric": 0.5, "Fighting": 2.0, "Bug": 2.0, "Rock": 0.5, "Steel": 0.5},
+    "Psychic":  {"Fighting": 2.0, "Poison": 2.0, "Psychic": 0.5, "Steel": 0.5, "Dark": 0.0},
+    "Bug":      {"Fire": 0.5, "Grass": 2.0, "Fighting": 0.5, "Poison": 0.5, "Flying": 0.5, "Psychic": 2.0, "Ghost": 0.5, "Dark": 2.0, "Steel": 0.5, "Fairy": 0.5},
+    "Rock":     {"Fire": 2.0, "Ice": 2.0, "Fighting": 0.5, "Ground": 0.5, "Flying": 2.0, "Bug": 2.0, "Steel": 0.5},
+    "Ghost":    {"Normal": 0.0, "Psychic": 2.0, "Ghost": 2.0, "Dark": 0.5},
+    "Dragon":   {"Dragon": 2.0, "Steel": 0.5, "Fairy": 0.0},
+    "Steel":    {"Fire": 0.5, "Water": 0.5, "Electric": 0.5, "Ice": 2.0, "Rock": 2.0, "Steel": 0.5, "Fairy": 2.0},
+    "Dark":     {"Fighting": 0.5, "Psychic": 2.0, "Ghost": 2.0, "Dark": 0.5, "Fairy": 0.5},
+    "Fairy":    {"Fire": 0.5, "Fighting": 2.0, "Poison": 0.5, "Dragon": 2.0, "Dark": 2.0, "Steel": 0.5}
 }
 
 # ==========================================
-# 🎒 חפצים (ITEMS DB)
+# 🎒 ITEMS DB
 # ==========================================
 ITEMS_DB = {
-    "פוקדור":     {"type": "ball", "bonus": 1.0, "desc": "לכדידת פוקימונים בסיסית"},
-    "סופר-דור":   {"type": "ball", "bonus": 1.5, "desc": "סיכוי תפיסה מוגבר"},
-    "אולטרה-דור": {"type": "ball", "bonus": 2.0, "desc": "תפיסה באיכות גבוהה"},
-    "שיקוי חיים": {"type": "heal", "val": 30,   "desc": "מרפא 30 HP לפוקימון הפעיל"},
-    "שיקוי על":   {"type": "heal", "val": 70,   "desc": "מרפא 70 HP לפוקימון הפעיל"}
+    "Poke Ball":   {"type": "ball", "bonus": 1.0, "cost": 15},
+    "Great Ball":  {"type": "ball", "bonus": 1.5, "cost": 35},
+    "Ultra Ball":  {"type": "ball", "bonus": 2.0, "cost": 70},
+    "Potion":      {"type": "heal", "val": 30,   "cost": 20},
+    "Super Potion":{"type": "heal", "val": 70,   "cost": 50}
 }
 
 # ==========================================
-# 🐾 פוקימונים (POKEMON SPECIES)
+# 🐾 POKEMON SPECIES
 # ==========================================
 POKEMON_SPECIES = [
-    {"name": "פידג'י",   "type": "רגיל", "hp": 35, "max": 35, "atk": 8,  "catch_rate": 0.6,  "icon": "🐦"},
-    {"name": "קטרפי",   "type": "עשב",  "hp": 30, "max": 30, "atk": 6,  "catch_rate": 0.7,  "icon": "🐛"},
-    {"name": "פיקאצ'ו",  "type": "חשמל", "hp": 45, "max": 45, "atk": 14, "catch_rate": 0.4,  "icon": "⚡"},
-    {"name": "צ'רמנדר",  "type": "אש",   "hp": 50, "max": 50, "atk": 15, "catch_rate": 0.35, "icon": "🔥"},
-    {"name": "בלבזאור",  "type": "עשב",  "hp": 55, "max": 55, "atk": 12, "catch_rate": 0.35, "icon": "🍃"},
-    {"name": "סקוורטל",  "type": "מים",  "hp": 52, "max": 52, "atk": 13, "catch_rate": 0.35, "icon": "💧"},
-    {"name": "ג'יגליפאף", "type": "רגיל", "hp": 60, "max": 60, "atk": 9,  "catch_rate": 0.5,  "icon": "רוז"},
-    {"name": "סנורלקס",  "type": "רגיל", "hp": 110,"max": 110,"atk": 20, "catch_rate": 0.15, "icon": "🐻"},
-    {"name": "מיוטו",    "type": "חשמל", "hp": 150,"max": 150,"atk": 28, "catch_rate": 0.05, "icon": "🔮"}
+    {"name": "Pidgey",     "type": "Normal",   "hp": 35, "max": 35, "atk": 8,  "catch_rate": 0.6,  "icon": "🐦"},
+    {"name": "Caterpie",   "type": "Bug",      "hp": 30, "max": 30, "atk": 6,  "catch_rate": 0.7,  "icon": "🐛"},
+    {"name": "Pikachu",    "type": "Electric", "hp": 45, "max": 45, "atk": 14, "catch_rate": 0.4,  "icon": "⚡"},
+    {"name": "Charmander", "type": "Fire",     "hp": 50, "max": 50, "atk": 15, "catch_rate": 0.35, "icon": "🔥"},
+    {"name": "Bulbasaur",  "type": "Grass",    "hp": 55, "max": 55, "atk": 12, "catch_rate": 0.35, "icon": "🍃"},
+    {"name": "Squirtle",   "type": "Water",    "hp": 52, "max": 52, "atk": 13, "catch_rate": 0.35, "icon": "💧"},
+    {"name": "Geodude",    "type": "Rock",     "hp": 40, "max": 40, "atk": 10, "catch_rate": 0.5,  "icon": "🪨"},
+    {"name": "Gastly",     "type": "Ghost",    "hp": 30, "max": 30, "atk": 16, "catch_rate": 0.4,  "icon": "👻"},
+    {"name": "Mewtwo",     "type": "Psychic",  "hp": 150,"max": 150,"atk": 28, "catch_rate": 0.05, "icon": "🔮"}
 ]
 
 ROUTES = [
-    {"name": "דרך 1 - דשא נמוך", "icon": "🌿"},
-    {"name": "דרך 2 - יער עבות",   "icon": "🌲"},
-    {"name": "דרך 3 - מערת סלעים", "icon": "⛰️"},
-    {"name": "אגם המים הצלולים", "icon": "🌊"}
+    {"name": "Route 1 - Tall Grass", "icon": "🌿"},
+    {"name": "Route 2 - Viridian Forest", "icon": "🌲"},
+    {"name": "Route 3 - Rock Cave", "icon": "⛰️"},
+    {"name": "Cerulean Lake", "icon": "🌊"}
 ]
 
 # ==========================================
-# ⚙️ מנוע המשחק
+# ⚙️ GAME ENGINE
 # ==========================================
 class Engine:
     def __init__(self, state=None):
         if not state:
-            # פוקימון התחלתי - פיקאצ'ו
-            starter = {"name": "פיקאצ'ו", "type": "חשמל", "hp": 45, "max": 45, "atk": 14, "icon": "⚡"}
+            starter = {"name": "Pikachu", "type": "Electric", "hp": 45, "max": 45, "atk": 14, "icon": "⚡"}
             self.state = {
                 "x": 0, "y": 0,
                 "gold": 50,
                 "team": [starter],
                 "active_idx": 0,
-                "inv": ["פוקדור", "פוקדור", "שיקוי חיים"],
+                "inv": ["Poke Ball", "Poke Ball", "Potion"],
                 "map": {},
                 "visited": ["0,0"],
-                "log": [{"text": "ברוך הבא לעולם הפוקימונים! יצאת לדרך עם פיקאצ'ו.", "type": "sys"}]
+                "log": [{"text": "Welcome to Pokemon World! You set off with Pikachu.", "type": "sys"}]
             }
             self.create_room(0, 0, safe=True)
         else:
@@ -90,7 +102,7 @@ class Engine:
         }
 
         if safe:
-            r_data["name"] = "מרכז פוקימונים ראשי"
+            r_data["name"] = "Main Pokemon Center"
             r_data["icon"] = "🏥"
             r_data["is_center"] = True
             self.state["map"][k] = r_data
@@ -98,11 +110,11 @@ class Engine:
 
         rnd = random.random()
         if rnd < 0.15:
-            r_data["name"] = "חנות פוקדורים (PokéMart)"
+            r_data["name"] = "PokéMart"
             r_data["icon"] = "🏪"
             r_data["is_shop"] = True
         elif rnd < 0.25:
-            r_data["name"] = "מרכז פוקימונים"
+            r_data["name"] = "Pokemon Center"
             r_data["icon"] = "🏥"
             r_data["is_center"] = True
         else:
@@ -110,20 +122,19 @@ class Engine:
             r_data["name"] = route["name"]
             r_data["icon"] = route["icon"]
             
-            # מפגש עם פוקימון פראי (60% סיכוי)
             if random.random() < 0.60:
                 spec = random.choice(POKEMON_SPECIES).copy()
                 r_data["enemy"] = spec
 
             if random.random() < 0.20:
-                r_data["items"].append(random.choice(["פוקדור", "שיקוי חיים"]))
+                r_data["items"].append(random.choice(["Poke Ball", "Potion"]))
 
         self.state["map"][k] = r_data
 
     def move(self, dx, dy):
         r_now = self.state["map"][self.pos()]
         if r_now.get("enemy"):
-            self.log("פוקימון פראי חוסם אותך! עליך לתקוף, לתפוס או לברוח.", "danger")
+            self.log("A wild Pokemon blocks your way! Attack, catch, or run.", "danger")
             return
 
         self.state["x"] += dx
@@ -134,24 +145,25 @@ class Engine:
         if k not in self.state["visited"]: self.state["visited"].append(k)
         
         r = self.state["map"][k]
-        self.log(f"הגעת ל-{r['name']}.", "sys")
-        if r.get("is_center"): self.log("🏥 מרכז פוקימונים! לחץ על כפתור הריפוי כדי לרפא את כל הצוות.", "success")
-        if r.get("is_shop"): self.log("🏪 חנות פוקדורים וציוד פתוחה!", "gold")
-        if r.get("enemy"): self.log(f"⚠️ פוקימון פראי הופיע: {r['enemy']['name']} ({r['enemy']['type']})!", "danger")
-        if r["items"]: self.log(f"🔎 מצאת על הרצפה: {', '.join(r['items'])}", "success")
+        self.log(f"Arrived at {r['name']}.", "sys")
+        if r.get("is_center"): self.log("🏥 Pokemon Center! Click heal to restore your team.", "success")
+        if r.get("is_shop"): self.log("🏪 PokéMart is open for items!", "gold")
+        if r.get("enemy"): self.log(f"⚠️ Wild Pokemon appeared: {r['enemy']['name']} ({r['enemy']['type']})!", "danger")
+        if r["items"]: self.log(f"🔎 Found on the ground: {', '.join(r['items'])}", "success")
 
     def attack(self):
         r = self.state["map"][self.pos()]
         enemy = r.get("enemy")
         player_mon = self.active_mon()
 
-        if not enemy: return self.log("אין פוקימון לתקוף.", "info")
+        if not enemy: return self.log("No enemy Pokemon to attack.", "info")
         if not player_mon or player_mon["hp"] <= 0:
-            return self.log("הפוקימון הפעיל שלך מעולף! החלף פוקימון.", "danger")
+            return self.log("Your active Pokemon is fainted! Switch Pokemon.", "danger")
 
-        # חישוב יחסי סוגים
-        p_type = player_mon.get("type", "רגיל")
-        e_type = enemy.get("type", "רגיל")
+        p_type = player_mon.get("type", "Normal")
+        e_type = enemy.get("type", "Normal")
+        
+        # Type matchup multiplier
         mult = TYPE_CHART.get(p_type, {}).get(e_type, 1.0)
 
         base_dmg = player_mon["atk"]
@@ -160,72 +172,70 @@ class Engine:
         enemy["hp"] -= player_dmg
         
         eff_msg = ""
-        if mult > 1.0: eff_msg = " (סופר אפקטיבי! ⚡)"
-        elif mult < 1.0: eff_msg = " (לא מאוד אפקטיבי...)"
+        if mult > 1.0: eff_msg = " (It's super effective! ⚡)"
+        elif mult == 0.0: eff_msg = " (It had no effect...)"
+        elif mult < 1.0: eff_msg = " (It's not very effective...)"
 
-        self.log(f"⚔️ {player_mon['name']} תקף את {enemy['name']} והסב {player_dmg} נזק!{eff_msg}", "sys")
+        self.log(f"⚔️ {player_mon['name']} attacked {enemy['name']} for {player_dmg} damage!{eff_msg}", "sys")
 
         if enemy["hp"] <= 0:
             gold_drop = random.randint(15, 35)
             self.state["gold"] += gold_drop
-            self.log(f"💀 {enemy['name']} התעלף! קיבלת {gold_drop} מטבעות.", "gold")
+            self.log(f"💀 Wild {enemy['name']} fainted! Earned {gold_drop} gold.", "gold")
             r["enemy"] = None
         else:
-            # התקפת נגד של האויב
             e_mult = TYPE_CHART.get(e_type, {}).get(p_type, 1.0)
             e_dmg = int(max(1, enemy["atk"] - random.randint(0, 3)) * e_mult)
             player_mon["hp"] = max(0, player_mon["hp"] - e_dmg)
-            self.log(f"💥 {enemy['name']} החזיר התקפה וגרם ל-{e_dmg} נזק!", "danger")
+            self.log(f"💥 {enemy['name']} counter-attacked for {e_dmg} damage!", "danger")
             if player_mon["hp"] <= 0:
-                self.log(f"😵 {player_mon['name']} התעלף!", "danger")
+                self.log(f"😵 {player_mon['name']} fainted!", "danger")
 
     def catch(self, ball_name):
         r = self.state["map"][self.pos()]
         enemy = r.get("enemy")
-        if not enemy: return self.log("אין פוקימון פראי לתפוס!", "info")
+        if not enemy: return self.log("No wild Pokemon to catch!", "info")
 
         if ball_name not in self.state["inv"]:
-            return self.log(f"אין לך {ball_name} בתיק!", "danger")
+            return self.log(f"You don't have a {ball_name}!", "danger")
 
         self.state["inv"].remove(ball_name)
         ball_data = ITEMS_DB.get(ball_name, {"bonus": 1.0})
 
-        # נוסחת תפיסה: HP נמוך = סיכוי גבוה
         hp_factor = 1.0 - (enemy["hp"] / enemy["max"])
         base_rate = enemy.get("catch_rate", 0.4)
         chance = (base_rate + (hp_factor * 0.45)) * ball_data["bonus"]
 
         if random.random() < chance:
-            self.log(f"🎉 תפסת את {enemy['name']}!", "gold")
+            self.log(f"🎉 Caught {enemy['name']}!", "gold")
             if len(self.state["team"]) < 6:
                 self.state["team"].append(enemy.copy())
-                self.log(f"{enemy['name']} הוסף לצוות שלך!", "success")
+                self.log(f"{enemy['name']} joined your team!", "success")
             else:
-                self.log(f"הצוות מלא (6/6). {enemy['name']} נשלח לבית הגידול.", "sys")
+                self.log(f"Team full (6/6). {enemy['name']} was sent to PC.", "sys")
             r["enemy"] = None
         else:
-            self.log(f"🔴 {enemy['name']} השתחרר מ{ball_name}!", "danger")
-            # הפוקימון תוקף
+            self.log(f"🔴 {enemy['name']} broke free from {ball_name}!", "danger")
             player_mon = self.active_mon()
             if player_mon and player_mon["hp"] > 0:
                 e_dmg = max(1, enemy["atk"] - random.randint(0, 2))
                 player_mon["hp"] = max(0, player_mon["hp"] - e_dmg)
-                self.log(f"💥 {enemy['name']} התרגז ותקף ב-{e_dmg} נזק!", "danger")
+                self.log(f"💥 {enemy['name']} attacked back for {e_dmg} damage!", "danger")
 
     def heal_team(self):
         r = self.state["map"][self.pos()]
         if not r.get("is_center"):
-            return self.log("אתה חייב להיות במרכז פוקימונים כדי לרפא!", "info")
+            return self.log("You must be at a Pokemon Center to heal!", "info")
         
         for mon in self.state["team"]:
             mon["hp"] = mon["max"]
-        self.log("💖 כל הפוקימונים בצוות חזרו לבריאות מלאה!", "success")
+        self.log("💖 Your entire team is restored to full health!", "success")
 
     def take(self):
         r = self.state["map"][self.pos()]
-        if not r["items"]: return self.log("אין מה לאסוף כאן.", "info")
+        if not r["items"]: return self.log("Nothing to pick up here.", "info")
         for item in r["items"]: self.state["inv"].append(item)
-        self.log(f"אספת: {', '.join(r['items'])}", "success")
+        self.log(f"Picked up: {', '.join(r['items'])}", "success")
         r["items"] = []
 
     def use_item(self, item_name):
@@ -236,9 +246,9 @@ class Engine:
         if eff["type"] == "heal":
             mon = self.active_mon()
             if not mon: return
-            if mon["hp"] >= mon["max"]: return self.log(f"{mon['name']} כבר בבריאות מלאה.", "info")
+            if mon["hp"] >= mon["max"]: return self.log(f"{mon['name']} is already full HP.", "info")
             mon["hp"] = min(mon["max"], mon["hp"] + eff["val"])
-            self.log(f"השתמשת ב-{item_name} על {mon['name']} → +{eff['val']} HP", "success")
+            self.log(f"Used {item_name} on {mon['name']} → +{eff['val']} HP", "success")
             self.state["inv"].remove(item_name)
         elif eff["type"] == "ball":
             self.catch(item_name)
@@ -247,20 +257,18 @@ class Engine:
         r = self.state["map"][self.pos()]
         if not r.get("is_shop"): return
 
-        prices = {"פוקדור": 15, "סופר-דור": 35, "אולטרה-דור": 70, "שיקוי חיים": 20, "שיקוי על": 50}
-        cost = prices.get(item_name, 999)
-
+        cost = ITEMS_DB.get(item_name, {}).get("cost", 999)
         if self.state["gold"] < cost:
-            return self.log(f"אין לך מספיק זהב! צריך {cost} מטבעות.", "danger")
+            return self.log(f"Not enough gold! Need {cost}.", "danger")
 
         self.state["gold"] -= cost
         self.state["inv"].append(item_name)
-        self.log(f"קנית {item_name} ב-{cost} זהב!", "success")
+        self.log(f"Bought {item_name} for {cost} gold!", "success")
 
     def switch_mon(self, idx):
         if 0 <= idx < len(self.state["team"]):
             self.state["active_idx"] = idx
-            self.log(f"שלחת לקרב את {self.state['team'][idx]['name']}!", "sys")
+            self.log(f"Sent out {self.state['team'][idx]['name']}!", "sys")
 
     def get_ui_data(self):
         k = self.pos()
@@ -322,17 +330,16 @@ def process():
     session["poke_game"] = eng.state
     return jsonify(eng.get_ui_data())
 
-
 # ==========================================
 # HTML + GUI
 # ==========================================
 HTML = """
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>פוקימון - מסע המאמנים</title>
+<title>Pokemon Game Engine</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap');
     :root { --bg:#121820; --panel:#1e2638; --panel2: #2a354d; --acc:#ffcc00; --border:#3d4b68;}
@@ -359,22 +366,22 @@ HTML = """
     .btn-action:active {transform:scale(0.98);}
 
     .log-container { background: #0a0d14; border-radius: 6px; border: 1px solid var(--border); padding: 10px; overflow-y: auto; display:flex; flex-direction:column-reverse; gap:4px;}
-    .msg { padding: 6px; border-radius: 4px; font-size: 13px; border-right: 3px solid transparent; background:rgba(255,255,255,0.02);}
-    .sys { color: #7aa2f7; border-right-color:#3d59a1;}
-    .danger { color: #f7768e; border-right-color:#db4b4b; background: rgba(255,0,0,0.1); }
-    .success { color: #9ece6a; border-right-color:#73daca; background: rgba(0,255,0,0.05);}
-    .gold { color: #e0af68; border-right-color:#ff9e3b; font-weight:bold;}
+    .msg { padding: 6px; border-radius: 4px; font-size: 13px; border-left: 3px solid transparent; background:rgba(255,255,255,0.02);}
+    .sys { color: #7aa2f7; border-left-color:#3d59a1;}
+    .danger { color: #f7768e; border-left-color:#db4b4b; background: rgba(255,0,0,0.1); }
+    .success { color: #9ece6a; border-left-color:#73daca; background: rgba(0,255,0,0.05);}
+    .gold { color: #e0af68; border-left-color:#ff9e3b; font-weight:bold;}
 
     .team-bar { display:flex; gap:6px; background:var(--panel); padding:6px; border-radius:6px; overflow-x:auto;}
     .mon-slot { background:#121820; border:1px solid var(--border); padding:6px; border-radius:4px; font-size:12px; cursor:pointer; min-width:70px; text-align:center;}
     .mon-slot.active { border-color:var(--acc); background:#28344d;}
 
     .controls { height: 150px; background: #151b26; border-top: 3px solid var(--border); padding: 10px; display: grid; grid-template-columns: 1fr 140px; gap: 15px; align-items: center;}
-    .d-pad { direction: ltr; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 140px; height:100%;}
+    .d-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 140px; height:100%;}
     .btn-arr { background: #222d42; color: #fff; border:none; border-radius: 6px; font-size: 18px; cursor: pointer;}
     .btn-arr:active { background: #32415e; }
     .up { grid-column: 2; grid-row: 1; }
-    .down { grid-column: 2; grid-row: 2; }
+    .down { grid-column: 2; grid-row: 3; }
     .left { grid-column: 1; grid-row: 2; }
     .right { grid-column: 3; grid-row: 2; }
 
@@ -404,7 +411,6 @@ HTML = """
         <div class="room-card">
             <div id="loc-name" style="font-weight:900; font-size:15px;">...</div>
             
-            <!-- פוקימון פראי -->
             <div id="enemy-box" class="dynamic-interaction">
                 <div style="display:flex; justify-content:space-between;">
                     <strong id="en-name" style="color:#ff8181;"></strong>
@@ -413,51 +419,47 @@ HTML = """
                 <div class="hp-track"><div id="en-fill" class="hp-fill" style="width:100%"></div></div>
             </div>
 
-            <!-- חנות -->
             <div id="shop-box" class="shop-box">
-                <div style="color:#ffcc00; font-size:14px; margin-bottom:6px;">🏪 חנות פוקדורים</div>
+                <div style="color:#ffcc00; font-size:14px; margin-bottom:6px;">🏪 PokéMart</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
-                    <button class="btn-action" onclick="send('buy','פוקדור')">פוקדור (15💰)</button>
-                    <button class="btn-action" onclick="send('buy','סופר-דור')">סופר-דור (35💰)</button>
-                    <button class="btn-action" onclick="send('buy','אולטרה-דור')">אולטרה (70💰)</button>
-                    <button class="btn-action" onclick="send('buy','שיקוי חיים')">שיקוי (20💰)</button>
+                    <button class="btn-action" onclick="send('buy','Poke Ball')">Poke Ball (15💰)</button>
+                    <button class="btn-action" onclick="send('buy','Great Ball')">Great Ball (35💰)</button>
+                    <button class="btn-action" onclick="send('buy','Ultra Ball')">Ultra Ball (70💰)</button>
+                    <button class="btn-action" onclick="send('buy','Potion')">Potion (20💰)</button>
                 </div>
             </div>
 
-            <!-- מרכז פוקימונים -->
             <div id="center-box" class="center-box">
-                <div style="color:#00ffcc; font-size:14px; margin-bottom:6px;">🏥 מרכז פוקימונים</div>
-                <button class="btn-action" style="background:#00a86b;" onclick="send('heal')">💖 רפא את כל הצוות</button>
+                <div style="color:#00ffcc; font-size:14px; margin-bottom:6px;">🏥 Pokemon Center</div>
+                <button class="btn-action" style="background:#00a86b;" onclick="send('heal')">💖 Heal Entire Team</button>
             </div>
         </div>
 
-        <!-- צוות הפוקימונים -->
         <div class="team-bar" id="team-bar"></div>
     </div>
 
     <div class="log-container" id="log-box"></div>
 </div>
 
-<!-- מודל תיק -->
 <div class="modal" id="inv-modal" onclick="if(event.target==this) toggleModal('inv-modal')">
     <div class="modal-box">
-        <h3 style="margin-top:0; color:var(--acc);">🎒 התיק שלי</h3>
+        <h3 style="margin-top:0; color:var(--acc);">🎒 My Bag</h3>
         <div id="inv-list" style="display:grid; gap:6px;"></div>
     </div>
 </div>
 
 <div class="controls">
     <div class="main-actions">
-        <button class="act-btn btn-atk" onclick="send('attack')">⚔️ התקף</button>
-        <button class="act-btn btn-catch" onclick="send('catch', 'פוקדור')">🔴 זרוק פוקדור</button>
-        <button class="act-btn btn-inv" onclick="toggleModal('inv-modal')">🎒 תיק</button>
+        <button class="act-btn btn-atk" onclick="send('attack')">⚔️ Attack</button>
+        <button class="act-btn btn-catch" onclick="send('catch', 'Poke Ball')">🔴 Throw Ball</button>
+        <button class="act-btn btn-inv" onclick="toggleModal('inv-modal')">🎒 Bag</button>
     </div>
 
     <div class="d-pad">
-        <button class="btn-arr up" onclick="send('move', [0,1])">⬆</button>
-        <button class="btn-arr left" onclick="send('move', [1,0])">⬅</button>
-        <button class="btn-arr down" onclick="send('move', [0,-1])">⬇</button>
-        <button class="btn-arr right" onclick="send('move', [-1,0])">➡</button>
+        <button class="btn-arr up" onclick="send('move', [0,1])">▲</button>
+        <button class="btn-arr left" onclick="send('move', [-1,0])">◄</button>
+        <button class="btn-arr down" onclick="send('move', [0,-1])">▼</button>
+        <button class="btn-arr right" onclick="send('move', [1,0])">►</button>
     </div>
 </div>
 
@@ -475,25 +477,21 @@ async function send(act, val=null) {
         });
         let d = await res.json();
 
-        // הלוגים
         let logBox = document.getElementById("log-box");
         logBox.innerHTML = "";
         d.log.slice().reverse().forEach(msg => {
             logBox.innerHTML += `<div class="msg ${msg.type}">${msg.text}</div>`;
         });
 
-        // מיני מפה
         let mapH = "";
         d.map_grid.forEach(row => {
             row.forEach(c => mapH += `<div class='map-cell ${c.cls}'>${c.val}</div>`);
         });
         document.getElementById("map-target").innerHTML = mapH;
 
-        // סטטוסים
         document.getElementById("gold").innerText = d.gold;
         document.getElementById("loc-name").innerText = d.room_name;
 
-        // צוות פוקימונים
         let teamH = "";
         d.team.forEach((m, idx) => {
             let activeCls = (idx === d.active_idx) ? "active" : "";
@@ -505,7 +503,6 @@ async function send(act, val=null) {
         });
         document.getElementById("team-bar").innerHTML = teamH;
 
-        // אויב
         document.getElementById("enemy-box").style.display = d.enemy ? "flex" : "none";
         if (d.enemy) {
             document.getElementById("en-name").innerText = `${d.enemy.icon || ''} ${d.enemy.name} (${d.enemy.type})`;
@@ -514,15 +511,13 @@ async function send(act, val=null) {
             document.getElementById("en-fill").style.width = (d.enemy.hp / d.enemy.max * 100) + "%";
         }
 
-        // חנות ומרכז
         document.getElementById("shop-box").style.display = d.is_shop ? "block" : "none";
         document.getElementById("center-box").style.display = d.is_center ? "block" : "none";
 
-        // תיק
         let invL = document.getElementById("inv-list");
         invL.innerHTML = "";
         if (d.inv.length === 0) {
-            invL.innerHTML = "<div style='text-align:center;'>התיק ריק...</div>";
+            invL.innerHTML = "<div style='text-align:center;'>Bag is empty...</div>";
         } else {
             d.inv.forEach(it => {
                 invL.innerHTML += `<button class="btn-action" onclick="send('use','${it}'); toggleModal('inv-modal')">${it}</button>`;
